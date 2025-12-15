@@ -1,7 +1,7 @@
 {
   "name": "dtales-backend",
   "version": "1.0.0",
-  "type": "commonjs",
+  "type": "module",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
@@ -9,12 +9,12 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^5.0.0",
+    "express": "^5.1.0",
     "pg": "^8.16.3"
   },
   "devDependencies": {
-    "@types/express": "^5.0.0",
-    "@types/node": "^22.0.0",
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.19.2",
     "typescript": "^5.8.2"
   }
 }
