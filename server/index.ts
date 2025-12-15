@@ -1,14 +1,10 @@
 import express from "express";
 import cors from "cors";
 import path from "path";
-import { fileURLToPath } from "url";
 
-import blogsRouter from "./routes/blogs";
-import caseStudiesRouter from "./routes/case-studies";
-
-// Required for ES modules (__dirname replacement)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// ROUTES (CommonJS compatible)
+const blogsRouter = require("./routes/blogs");
+const caseStudiesRouter = require("./routes/case-studies");
 
 const app = express();
 
@@ -32,24 +28,11 @@ app.get("/health", (_req, res) => {
 });
 
 /* ======================
-   SERVE FRONTEND (OPTIONAL)
-   Only if you later build frontend
-   into server/dist/client
-====================== */
-const clientBuildPath = path.join(__dirname, "client");
-
-app.use(express.static(clientBuildPath));
-
-app.get("*", (_req, res) => {
-  res.sendFile(path.join(clientBuildPath, "index.html"));
-});
-
-/* ======================
    START SERVER (RENDER SAFE)
 ====================== */
 const PORT = process.env.PORT || 4000;
 
-app.listen(PORT, "0.0.0.0", () => {
+app.listen(PORT, () => {
   console.log(`🚀 Backend running on port ${PORT}`);
 });
 
