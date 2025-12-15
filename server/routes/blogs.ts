@@ -4,46 +4,56 @@ const router = Router();
 
 /**
  * GET /api/blogs
- * Fetch all blogs
  */
 router.get("/", async (_req: Request, res: Response) => {
   try {
-    // TEMP: replace with DB query later
     res.status(200).json([]);
-  } catch (error) {
-    console.error("Error fetching blogs:", error);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Failed to fetch blogs" });
   }
 });
 
 /**
  * GET /api/blogs/:id
- * Fetch a single blog by ID
  */
 router.get("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    // TEMP: replace with DB query later
     res.status(200).json({
       id,
       title: "Sample Blog",
-      content: "This is a placeholder blog",
+      content: "Placeholder content",
     });
-  } catch (error) {
-    console.error("Error fetching blog:", error);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Failed to fetch blog" });
   }
 });
 
 /**
  * POST /api/blogs
- * Create a new blog
  */
 router.post("/", async (req: Request, res: Response) => {
   try {
     const { title, content, image } = req.body;
 
     if (!title || !content) {
-      return res.stat
+      return res.status(400).json({ message: "Title and content required" });
+    }
+
+    res.status(201).json({
+      id: Date.now(),
+      title,
+      content,
+      image,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to create blog" });
+  }
+});
+
+export = router;
 
