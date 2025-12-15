@@ -1,85 +1,115 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const blogItems = [
-	{
-		id: 1,
-		date: "8/1/25",
-		title:
-			"The Silent Revolution: How Automation is Reshaping Technical Content Creation and Maintenance",
-	},
-	{
-		id: 2,
-		date: "7/3/25",
-		title: "The Right Tech Stack to Future-Proof Your Docs",
-	},
-	{
-		id: 3,
-		date: "6/12/25",
-		title: "Documentation Debt: Inefficient docs and how we fix them",
-	},
-	{
-		id: 4,
-		date: "5/29/25",
-		title: "CDC vs. SDLC: Why documentation needs its own lifecycle?",
-	},
-	{
-		id: 5,
-		date: "5/22/25",
-		title:
-			"How we built a documentation system from scratch for a startup",
-	},
-	{
-		id: 6,
-		date: "5/15/25",
-		title:
-			"The Evolution of Technical Writing: From PDFs to Dynamic, Interactive Docs",
-	},
-	{
-		id: 7,
-		date: "5/1/25",
-		title:
-			"Self-hosted vs. SaaS documentation platforms: What’s best for your product?",
-	},
-	{
-		id: 8,
-		date: "4/24/25",
-		title:
-			"Why Documentation often fails: The hidden gaps in traditional Technical Writing",
-	},
-];
+type Blog = {
+	id: string;
+	title: string;
+	slug: string;
+	cover_image_url?: string | null;
+	content?: { html?: string };
+	published: boolean;
+	created_at: string;
+};
+
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+
+const stripHtml = (html: string) => html.replace(/<[^>]*>?/gm, "");
+const getExcerpt = (html?: string) => {
+	const text = stripHtml(html || "");
+	return text.length > 150 ? `${text.slice(0, 150)}…` : text;
+};
 
 const Blogs: React.FC = () => {
+	const [blogs, setBlogs] = useState<Blog[]>([]);
+	const [loading, setLoading] = useState<boolean>(true);
+	const [error, setError] = useState<string | null>(null);
+
+	useEffect(() => {
+		const loadBlogs = async () => {
+			try {
+				const res = await fetch(`${BASE_URL}/api/blogs/public`);
+				if (!res.ok) throw new Error("Failed to fetch blogs");
+				const data = await res.json();
+				setBlogs(data);
+			} catch (e: any) {
+				setError(e.message || "Failed to load blogs");
+			} finally {
+				setLoading(false);
+			}
+		};
+		loadBlogs();
+	}, []);
+
 	return (
-		<div className="pt-28 pb-24 bg-[#F5F5F7]">
-			<div className="max-w-6xl mx-auto px-6 space-y-16">
-				{blogItems.map((blog) => (
-					<div
-						key={blog.id}
-						className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center"
-					>
-						{/* Image placeholder left column */}
-						<div className="w-full h-[280px] bg-gray-200 rounded-2xl flex items-center justify-center text-gray-500 text-lg">
-							Place picture here
-						</div>
+		<div className="pt-28 pb-24 min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-950">
+			<div className="max-w-6xl mx-auto px-6 space-y-10">
+				<div className="text-center mb-6">
+					<h1 className="text-4xl md:text-5xl font-bold text-white">
+						Blogs
+					</h1>
+					<p className="text-gray-400 mt-3">
+						Latest published insights from DTales Tech.
+					</p>
+				</div>
 
-						{/* Text right column */}
-						<div className="space-y-2">
-							<p className="text-gray-500 text-sm">{blog.date}</p>
+				{loading && (
+					<div className="text-center text-gray-300">Loading blogs...</div>
+				)}
 
-							<h2 className="text-3xl font-semibold text-[#1d3c78] leading-tight">
-								{blog.title}
-							</h2>
-
-							<Link
-								to={`/blogs/${blog.id}`}
-								className="text-[#1d3c78] font-medium underline underline-offset-4 hover:text-[#102447]"
-							>
-								Read More
-							</Link>
-						</div>
+				{error && (
+					<div className="text-center text-red-300 bg-red-500/10 border border-red-500/30 rounded-xl py-3 px-4">
+						{error}
 					</div>
-				))}
+				)}
+
+				{!loading && !error && blogs.length === 0 && (
+					<div className="text-center text-gray-300">No blogs found.</div>
+				)}
+
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+					{blogs.map((blog) => (
+						<div
+							key={blog.id}
+							className="bg-white/5 border border-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-xl flex flex-col gap-4"
+						>
+							{blog.cover_image_url && (
+								<Link to={`/blogs/${blog.id}`}>
+									<img
+										src={blog.cover_image_url}
+										alt={blog.title}
+										className="w-full h-48 object-cover rounded-xl"
+									/>
+								</Link>
+							)}
+
+							<Link to={`/blogs/${blog.id}`}>
+								<h2 className="text-2xl font-bold text-white leading-snug mb-2">
+									{blog.title}
+								</h2>
+							</Link>
+
+							<p className="text-gray-400 text-sm">
+								{new Date(blog.created_at).toLocaleDateString()}
+							</p>
+
+							<p className="text-gray-300 text-base leading-relaxed">
+								{getExcerpt(blog.content?.html)}
+							</p>
+
+							<div className="flex items-center justify-between pt-2">
+								<span className="text-xs uppercase tracking-wide text-gray-400">
+									{blog.slug}
+								</span>
+								<Link
+									to={`/blogs/${blog.id}`}
+									className="text-[#7fb0ff] hover:text-white transition-colors text-sm font-semibold"
+								>
+									Read More →
+								</Link>
+							</div>
+						</div>
+					))}
+				</div>
 			</div>
 		</div>
 	);

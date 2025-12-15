@@ -1,36 +1,93 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-const blogTitles: Record<number, string> = {
-  1: "The Silent Revolution: How Automation is Reshaping Technical Content Creation and Maintenance",
-  2: "The Right Tech Stack to Future-Proof Your Docs",
-  3: "Documentation Debt: Inefficient docs and how we fix them",
-  4: "CDC vs. SDLC: Why documentation needs its own lifecycle?",
-  5: "How we built a documentation system from scratch for a startup",
-  6: "The Evolution of Technical Writing: From PDFs to Dynamic, Interactive Docs",
-  7: "Self-hosted vs. SaaS documentation platforms: What’s best for your product?",
-  8: "Why Documentation often fails: The hidden gaps in traditional Technical Writing",
+type Blog = {
+  id: string;
+  title: string;
+  cover_image_url?: string | null;
+  content?: { html?: string };
+  created_at?: string;
 };
+
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 const BlogDetails: React.FC = () => {
   const { id } = useParams();
-  const blogId = Number(id);
+  const [blog, setBlog] = useState<Blog | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadBlog = async () => {
+      if (!id) return;
+      try {
+        const res = await fetch(`${BASE_URL}/api/blogs/${id}`);
+        if (!res.ok) throw new Error("Failed to fetch blog");
+        const data = await res.json();
+        setBlog(data);
+      } catch (e: any) {
+        setError(e.message || "Failed to load blog");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadBlog();
+  }, [id]);
 
   return (
-    <div className="pt-32 pb-24 px-6 max-w-4xl mx-auto">
-      <h1 className="text-5xl font-bold text-[#1d3c78] leading-tight mb-10">
-        {blogTitles[blogId] || "Blog Not Found"}
-      </h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-950 pt-28 pb-24 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto">
+        {loading && (
+          <div className="text-center text-gray-300 bg-white/5 border border-white/10 rounded-xl py-4 px-5">
+            Loading blog...
+          </div>
+        )}
 
-      <div className="w-full h-[350px] bg-gray-200 rounded-xl flex items-center justify-center text-gray-600 text-lg mb-10">
-        Place picture here
+        {error && (
+          <div className="text-center text-red-300 bg-red-500/10 border border-red-500/30 rounded-xl py-4 px-5">
+            {error}
+          </div>
+        )}
+
+        {!loading && !error && !blog && (
+          <div className="text-center text-gray-300">Blog not found.</div>
+        )}
+
+        {!loading && !error && blog && (
+          <div className="bg-white/5 border border-white/10 backdrop-blur-lg rounded-2xl shadow-xl p-6 sm:p-8 space-y-6">
+            <div className="space-y-3">
+              <h1 className="text-3xl sm:text-4xl font-bold text-white leading-tight">
+                {blog.title}
+              </h1>
+              {blog.created_at && (
+                <p className="text-sm text-gray-400">
+                  {new Date(blog.created_at).toLocaleDateString()}
+                </p>
+              )}
+            </div>
+
+            {blog.cover_image_url && (
+              <div className="overflow-hidden rounded-xl border border-white/10">
+                <img
+                  src={blog.cover_image_url}
+                  alt={blog.title}
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+            )}
+
+            <div
+              className="prose prose-invert prose-lg max-w-none text-gray-100"
+              dangerouslySetInnerHTML={{ __html: blog.content?.html || "" }}
+            />
+          </div>
+        )}
       </div>
-
-      <p className="text-gray-700 text-lg leading-relaxed">
-        Blog content will go here. (You will provide the content later.)
-      </p>
     </div>
   );
 };
 
 export default BlogDetails;
+
+
+

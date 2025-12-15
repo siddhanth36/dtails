@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, Pause, Play } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { HERO_SLIDES } from '../constants';
 
 const HeroSlider: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -21,6 +24,54 @@ const HeroSlider: React.FC = () => {
     setCurrentIndex(index);
     setIsPlaying(false);
     setTimeout(() => setIsPlaying(true), 8000);
+  };
+
+  // Helper function for HashRouter-safe smooth scrolling
+  const scrollToHash = (hash: string) => {
+    if (location.pathname !== "/") {
+      navigate(`/#/${hash}`);
+      return;
+    }
+
+    requestAnimationFrame(() => {
+      const el = document.getElementById(hash);
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
+
+  // Helper function to scroll to footer
+  const scrollToFooter = () => {
+    if (location.pathname !== "/") {
+      navigate("/");
+    }
+
+    setTimeout(() => {
+      const footer = document.getElementById("contact");
+      footer?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 200);
+  };
+
+  const handleCTAClick = () => {
+    switch (currentIndex) {
+      case 0:
+        // Slide 1 - Learn More → scroll to About section
+        scrollToHash("about");
+        break;
+      case 1:
+        // Slide 2 - Our Services → navigate to /services
+        navigate('/services');
+        break;
+      case 2:
+        // Slide 3 - View Portfolio → navigate to /blogs
+        navigate('/blogs');
+        break;
+      case 3:
+        // Slide 4 - Contact Us → scroll to footer
+        scrollToFooter();
+        break;
+      default:
+        break;
+    }
   };
 
   return (
@@ -75,7 +126,10 @@ const HeroSlider: React.FC = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 1, duration: 0.5 }}
             >
-              <button className="group relative inline-flex items-center gap-3 bg-white text-black px-10 py-4 rounded-full text-lg font-medium hover:bg-gray-100 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)]">
+              <button 
+                onClick={handleCTAClick}
+                className="group relative inline-flex items-center gap-3 bg-white text-black px-10 py-4 rounded-full text-lg font-medium hover:bg-gray-100 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)]"
+              >
                 {HERO_SLIDES[currentIndex].cta}
                 <span className="bg-black text-white rounded-full p-1 group-hover:translate-x-1 transition-transform duration-300">
                     <ChevronRight className="w-4 h-4" />

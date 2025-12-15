@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 // Fix: Import 'Variants' as a type to resolve the 'no exported member' error.
 import { motion, type Variants } from 'framer-motion';
@@ -27,7 +25,7 @@ const Home: React.FC = () => {
       <HeroSlider />
       
       {/* About DTALES Tech Section - Styled as Card */}
-      <section className="py-24 px-6">
+      <section id="about" className="py-24 px-6">
         <div className="max-w-7xl mx-auto">
           <motion.div
             className="bg-white rounded-[2.5rem] p-12 md:p-20 shadow-sm"

@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   motion,
-  useScroll,
-  useMotionValueEvent,
   AnimatePresence,
 } from "framer-motion";
 import { Menu, X, ChevronDown } from "lucide-react";
@@ -12,20 +10,19 @@ import { Menu, X, ChevronDown } from "lucide-react";
 const Navbar: React.FC = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const navigate = useNavigate();
 
-  const { scrollY } = useScroll();
   const location = useLocation();
-
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    setIsScrolled(latest > 50);
-  });
-
-  const linkColor = isScrolled ? "text-[#0020BF]" : "text-white";
 
   return (
     <motion.nav
-      className="fixed top-0 left-0 w-full z-50 bg-gradient-to-b from-black/40 to-black/10 backdrop-blur-2xl backdrop-saturate-150 border-b border-white/10"
+      style={{
+        backgroundColor: 'rgba(40, 40, 40, 0.55)',
+        backdropFilter: 'blur(28px) saturate(160%)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)'
+      }}
+      className="fixed top-0 left-0 w-full z-50"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
@@ -54,21 +51,21 @@ const Navbar: React.FC = () => {
         <div className="hidden md:flex items-center space-x-8">
           <Link
             to="/"
-            className={`text-sm font-medium ${linkColor} hover:opacity-70 transition`}
+            className="text-sm font-medium text-white hover:opacity-70 transition"
           >
             Home
           </Link>
 
           <Link
             to="/services"
-            className={`text-sm font-medium ${linkColor} hover:opacity-70 transition`}
+            className="text-sm font-medium text-white hover:opacity-70 transition"
           >
             Services
           </Link>
 
           <Link
             to="/team"
-            className={`text-sm font-medium ${linkColor} hover:opacity-70 transition`}
+            className="text-sm font-medium text-white hover:opacity-70 transition"
           >
             Our Team
           </Link>
@@ -79,7 +76,7 @@ const Navbar: React.FC = () => {
             onMouseEnter={() => setActiveDropdown("articles")}
             onMouseLeave={() => setActiveDropdown(null)}
           >
-            <button className={`flex items-center gap-1 text-sm font-medium ${linkColor} hover:opacity-70 transition`}>
+            <button className="flex items-center gap-1 text-sm font-medium text-white hover:opacity-70 transition">
               Articles
               <ChevronDown
                 size={14}
@@ -101,13 +98,13 @@ const Navbar: React.FC = () => {
                   <div className="p-1">
                     <Link
                       to="/blogs"
-                      className={`block px-4 py-3 text-sm ${linkColor} hover:bg-white/10 rounded-lg`}
+                      className="block px-4 py-3 text-sm text-white hover:bg-white/10 rounded-lg"
                     >
                       Blogs
                     </Link>
                     <Link
                       to="/case-studies"
-                      className={`block px-4 py-3 text-sm ${linkColor} hover:bg-white/10 rounded-lg`}
+                      className="block px-4 py-3 text-sm text-white hover:bg-white/10 rounded-lg"
                     >
                       Case Studies
                     </Link>
@@ -117,14 +114,8 @@ const Navbar: React.FC = () => {
             </AnimatePresence>
           </div>
 
-          <a
-            href="#contact"
-            className={`text-sm font-medium ${linkColor} hover:opacity-70 transition`}
-          >
-            Contact
-          </a>
-
           <button 
+            onClick={() => navigate('/contact')}
             className="bg-[#0020BF] text-white px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wide hover:bg-[#0A2CFF] hover:scale-105 transition-all shadow-lg"
           >
             Get Started
@@ -136,7 +127,7 @@ const Navbar: React.FC = () => {
           className="md:hidden z-50 p-2"
           onClick={() => setIsMobileOpen(!isMobileOpen)}
         >
-          {isMobileOpen ? <X size={24} className={linkColor} /> : <Menu size={24} className={linkColor} />}
+          {isMobileOpen ? <X size={24} className="text-white" /> : <Menu size={24} className="text-white" />}
         </button>
       </div>
 
@@ -197,13 +188,15 @@ const Navbar: React.FC = () => {
                 </div>
               </div>
 
-              <a
-                href="#contact"
-                className="text-3xl font-bold text-white"
-                onClick={() => setIsMobileOpen(false)}
+              <button
+                onClick={() => {
+                  navigate('/contact');
+                  setIsMobileOpen(false);
+                }}
+                className="text-3xl font-bold text-white text-left"
               >
-                Contact
-              </a>
+                Get Started
+              </button>
             </div>
           </motion.div>
         )}

@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Quote } from 'lucide-react';
@@ -11,9 +9,18 @@ const Testimonials: React.FC = () => {
 
   return (
     <section className="py-32 bg-black text-white overflow-hidden relative">
+      {/* World map background */}
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-50"
+        style={{ backgroundImage: "url('/world-map.png')" }}
+      />
+
+      {/* Dark overlay for readability */}
+      <div className="absolute inset-0 bg-black/60" />
+
       {/* Decorative background glow */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-dtales-navy/20 rounded-full blur-[128px] pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-blue-900/20 rounded-full blur-[128px] pointer-events-none" />
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-dtales-navy/20 rounded-full blur-[128px] pointer-events-none z-0" />
+      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-blue-900/20 rounded-full blur-[128px] pointer-events-none z-0" />
 
       <div className="relative z-10">
         <div className="mb-20 text-center max-w-3xl mx-auto px-6">
@@ -65,9 +72,6 @@ const Testimonials: React.FC = () => {
               style={{ width: "fit-content" }}
               whileHover={{ animationPlayState: "paused" }}
             >
-              {/* We render the items in two distinct sets to allow for perfect looping. 
-                  If we use 4 sets in the array, we simply loop halfway through. 
-                  The trick is ensuring the visible track is always full. */}
               {MARQUEE_ITEMS.map((t, idx) => (
                 <div
                   key={`${t.id}-${idx}`}

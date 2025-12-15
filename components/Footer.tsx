@@ -1,11 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Github, Twitter, Linkedin, Instagram } from "lucide-react";
+import { Linkedin, Mail } from "lucide-react";
 
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-black text-white pt-20 pb-10 border-t border-white/10">
+    <footer id="contact" className="bg-black text-white pt-20 pb-10 border-t border-white/10">
       <div className="max-w-7xl mx-auto px-6">
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
@@ -35,13 +35,30 @@ const Footer: React.FC = () => {
 
           <div>
             <h4 className="font-semibold text-lg mb-6">Connect</h4>
-            <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-blue-600">
+            <div className="flex gap-4 mb-8">
+              <a 
+                href="https://www.linkedin.com/company/dtales-tech/posts/?feedView=all" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-blue-600 transition-colors"
+              >
                 <Linkedin size={20} />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-blue-400">
-                <Twitter size={20} />
+              <a 
+                href="mailto:contact@dtales.tech" 
+                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-blue-600 transition-colors"
+              >
+                <Mail size={20} />
               </a>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-lg mb-2">Contact Us</h4>
+              <p className="text-gray-400 text-sm">
+                <a href="mailto:contact@dtales.tech" className="hover:text-white transition-colors">
+                  Mail: contact@dtales.tech
+                </a>
+              </p>
             </div>
           </div>
 
