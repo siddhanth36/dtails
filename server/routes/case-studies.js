@@ -39,7 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = require("express");
 var db_1 = require("../db");
 var router = (0, express_1.Router)();
-// Get all case studies
+// List all case studies
 router.get("/", function (_req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var rows;
     return __generator(this, function (_a) {
