@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { FileText, ArrowRight } from "lucide-react";
 import { apiFetch } from "../src/lib/api";
 
 type Blog = {
@@ -31,75 +33,88 @@ const Blogs: React.FC = () => {
 	}, []);
 
 	return (
-		<div className="pt-28 pb-24 min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-950">
-			<div className="max-w-6xl mx-auto px-6 space-y-10">
-				<div className="text-center mb-6">
-					<h1 className="text-4xl md:text-5xl font-bold text-white">
-						Blogs
-					</h1>
-					<p className="text-gray-400 mt-3">
-						Latest published insights from DTales Tech.
-					</p>
+		<div className="pt-28 pb-24 min-h-screen bg-white px-6">
+			<div className="max-w-4xl mx-auto text-center mb-20">
+				<motion.h1
+					className="text-6xl md:text-7xl font-bold text-dtales-navy mb-6 tracking-tight"
+					initial={{ opacity: 0, y: -20 }}
+					animate={{ opacity: 1, y: 0 }}
+				>
+					Blogs
+				</motion.h1>
+				<motion.p
+					className="text-xl text-gray-500"
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+				>
+					Latest published insights from DTales Tech.
+				</motion.p>
+			</div>
+
+			{loading && (
+				<div className="text-center text-gray-500">Loading blogs...</div>
+			)}
+
+			{error && (
+				<div className="text-center text-red-500 bg-red-50 border border-red-200 rounded-xl py-3 px-4 max-w-2xl mx-auto">
+					{error}
 				</div>
+			)}
 
-				{loading && (
-					<div className="text-center text-gray-300">Loading blogs...</div>
-				)}
+			{!loading && !error && blogs.length === 0 && (
+				<div className="text-center text-gray-500">No blogs found.</div>
+			)}
 
-				{error && (
-					<div className="text-center text-red-300 bg-red-500/10 border border-red-500/30 rounded-xl py-3 px-4">
-						{error}
-					</div>
-				)}
-
-				{!loading && !error && blogs.length === 0 && (
-					<div className="text-center text-gray-300">No blogs found.</div>
-				)}
-
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-					{blogs.map((blog) => (
-						<div
-							key={blog.id}
-							className="bg-white/5 border border-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-xl flex flex-col gap-4"
-						>
-							{blog.cover_image_url && (
-								<Link to={`/blogs/${blog.id}`}>
-									<img
-										src={blog.cover_image_url}
-										alt={blog.title}
-										className="w-full h-48 object-cover rounded-xl"
-									/>
-								</Link>
-							)}
-
-							<Link to={`/blogs/${blog.id}`}>
-								<h2 className="text-2xl font-bold text-white leading-snug mb-2">
-									{blog.title}
-								</h2>
-							</Link>
-
-							<p className="text-gray-400 text-sm">
-								{new Date(blog.created_at).toLocaleDateString()}
-							</p>
-
-							<p className="text-gray-300 text-base leading-relaxed">
-								{getExcerpt(blog.content?.html)}
-							</p>
-
-							<div className="flex items-center justify-between pt-2">
-								<span className="text-xs uppercase tracking-wide text-gray-400">
-									{blog.slug}
-								</span>
-								<Link
-									to={`/blogs/${blog.id}`}
-									className="text-[#7fb0ff] hover:text-white transition-colors text-sm font-semibold"
-								>
-									Read More →
-								</Link>
-							</div>
+			<div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+				{blogs.map((blog, index) => (
+					<motion.div
+						key={blog.id}
+						className="bg-[#F5F5F7] p-8 rounded-[2rem] shadow-sm hover:shadow-xl transition-all border border-gray-200 flex flex-col gap-4"
+						initial={{ opacity: 0, y: 30 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						viewport={{ once: true }}
+					>
+						<div className="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center">
+							<FileText size={26} />
 						</div>
-					))}
-				</div>
+
+						{blog.cover_image_url && (
+							<Link to={`/blogs/${blog.id}`}>
+								<img
+									src={blog.cover_image_url}
+									alt={blog.title}
+									className="w-full h-44 object-cover rounded-2xl"
+								/>
+							</Link>
+						)}
+
+						<Link to={`/blogs/${blog.id}`}>
+							<h2 className="text-2xl font-bold text-black leading-snug">
+								{blog.title}
+							</h2>
+						</Link>
+
+						<p className="text-gray-500 text-sm">
+							{new Date(blog.created_at).toLocaleDateString()}
+						</p>
+
+						<p className="text-gray-600 text-lg leading-relaxed">
+							{getExcerpt(blog.content?.html)}
+						</p>
+
+						<div className="flex items-center justify-between mt-auto pt-2">
+							<span className="text-sm text-blue-800 font-semibold">
+								{blog.slug}
+							</span>
+							<Link
+								to={`/blogs/${blog.id}`}
+								className="text-dtales-navy font-semibold hover:underline flex items-center gap-2"
+							>
+								Read More <ArrowRight size={18} />
+							</Link>
+						</div>
+					</motion.div>
+				))}
 			</div>
 		</div>
 	);

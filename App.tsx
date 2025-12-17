@@ -14,6 +14,8 @@ import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminBlogEditor from './pages/AdminBlogEditor';
 import AdminBlogsManage from './pages/AdminBlogsManage';
+import AdminCaseStudyEditor from './pages/AdminCaseStudyEditor';
+import AdminCaseStudiesManage from './pages/AdminCaseStudiesManage';
 
 // Scroll to top on route change
 const ScrollToTop = () => {
@@ -75,6 +77,30 @@ const App: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <AdminBlogsManage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/case-studies/new" 
+              element={
+                <ProtectedRoute>
+                  <AdminCaseStudyEditor />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/case-studies/edit/:id" 
+              element={
+                <ProtectedRoute>
+                  <AdminCaseStudyEditor />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/case-studies/manage" 
+              element={
+                <ProtectedRoute>
+                  <AdminCaseStudiesManage />
                 </ProtectedRoute>
               } 
             />

@@ -1,10 +1,55 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Shield, LogOut, FileText, Layers, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { apiFetch } from "../src/lib/api";
+
+type Blog = {
+  id: string;
+  published: boolean;
+};
+
+type CaseStudy = {
+  id: string;
+  published: boolean;
+};
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
+
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [cases, setCases] = useState<CaseStudy[]>([]);
+  const [blogLoading, setBlogLoading] = useState(true);
+  const [caseLoading, setCaseLoading] = useState(true);
+  const [blogError, setBlogError] = useState<string | null>(null);
+  const [caseError, setCaseError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setBlogLoading(true);
+    apiFetch<Blog[]>("/api/blogs")
+      .then(setBlogs)
+      .catch((err) => setBlogError(err.message || "Failed to load blogs"))
+      .finally(() => setBlogLoading(false));
+  }, []);
+
+  useEffect(() => {
+    setCaseLoading(true);
+    apiFetch<CaseStudy[]>("/api/case-studies")
+      .then(setCases)
+      .catch((err) => setCaseError(err.message || "Failed to load case studies"))
+      .finally(() => setCaseLoading(false));
+  }, []);
+
+  const totalBlogs = blogs.length;
+  const publishedBlogs = blogs.filter((b) => b.published).length;
+  const draftBlogs = totalBlogs - publishedBlogs;
+
+  const totalCases = cases.length;
+  const publishedCases = cases.filter((c) => c.published).length;
+  const draftCases = totalCases - publishedCases;
+
+  const totalContent = totalBlogs + totalCases;
+  const isLoading = blogLoading || caseLoading;
 
   const handleLogout = () => {
     sessionStorage.removeItem('isAdminLoggedIn');
@@ -72,13 +117,13 @@ const AdminDashboard: React.FC = () => {
             </p>
             <div className="space-y-2">
               <div className="p-3 bg-white/5 rounded-lg border border-white/5">
-                <p className="text-white text-sm">Total Posts: 8</p>
+                <p className="text-white text-sm">Total Posts: {blogLoading ? "Loading..." : totalBlogs}</p>
               </div>
               <div className="p-3 bg-white/5 rounded-lg border border-white/5">
-                <p className="text-white text-sm">Published: 8</p>
+                <p className="text-white text-sm">Published: {blogLoading ? "Loading..." : publishedBlogs}</p>
               </div>
               <div className="p-3 bg-white/5 rounded-lg border border-white/5">
-                <p className="text-white text-sm">Drafts: 0</p>
+                <p className="text-white text-sm">Drafts: {blogLoading ? "Loading..." : draftBlogs}</p>
               </div>
             </div>
             <button 
@@ -109,7 +154,10 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <h2 className="text-xl font-bold text-white">Case Studies Management</h2>
               </div>
-              <button className="p-2 bg-[#0020BF] hover:bg-[#0A2CFF] rounded-lg transition-all">
+              <button
+                onClick={() => navigate('/admin/case-studies/new')}
+                className="p-2 bg-[#0020BF] hover:bg-[#0A2CFF] rounded-lg transition-all"
+              >
                 <Plus className="text-white" size={18} />
               </button>
             </div>
@@ -118,13 +166,13 @@ const AdminDashboard: React.FC = () => {
             </p>
             <div className="space-y-2">
               <div className="p-3 bg-white/5 rounded-lg border border-white/5">
-                <p className="text-white text-sm">Total Case Studies: 3</p>
+                <p className="text-white text-sm">Total Case Studies: {caseLoading ? "Loading..." : totalCases}</p>
               </div>
               <div className="p-3 bg-white/5 rounded-lg border border-white/5">
-                <p className="text-white text-sm">Published: 3</p>
+                <p className="text-white text-sm">Published: {caseLoading ? "Loading..." : publishedCases}</p>
               </div>
               <div className="p-3 bg-white/5 rounded-lg border border-white/5">
-                <p className="text-white text-sm">Drafts: 0</p>
+                <p className="text-white text-sm">Drafts: {caseLoading ? "Loading..." : draftCases}</p>
               </div>
             </div>
             <button className="mt-4 w-full py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all text-sm font-medium">
@@ -147,21 +195,26 @@ const AdminDashboard: React.FC = () => {
           className="p-6 shadow-2xl"
         >
           <h2 className="text-xl font-bold text-white mb-4">Quick Stats</h2>
+          {(blogError || caseError) && (
+            <p className="text-sm text-red-300 mb-4">
+              {blogError || caseError}
+            </p>
+          )}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="p-4 bg-white/5 rounded-lg border border-white/5 text-center">
-              <p className="text-2xl font-bold text-white">11</p>
+              <p className="text-2xl font-bold text-white">{isLoading ? "Loading..." : totalContent}</p>
               <p className="text-gray-400 text-sm">Total Content</p>
             </div>
             <div className="p-4 bg-white/5 rounded-lg border border-white/5 text-center">
-              <p className="text-2xl font-bold text-white">8</p>
+              <p className="text-2xl font-bold text-white">{blogLoading ? "Loading..." : totalBlogs}</p>
               <p className="text-gray-400 text-sm">Blog Posts</p>
             </div>
             <div className="p-4 bg-white/5 rounded-lg border border-white/5 text-center">
-              <p className="text-2xl font-bold text-white">3</p>
+              <p className="text-2xl font-bold text-white">{caseLoading ? "Loading..." : totalCases}</p>
               <p className="text-gray-400 text-sm">Case Studies</p>
             </div>
             <div className="p-4 bg-white/5 rounded-lg border border-white/5 text-center">
-              <p className="text-2xl font-bold text-white">0</p>
+              <p className="text-2xl font-bold text-white">{blogLoading || caseLoading ? "Loading..." : draftBlogs + draftCases}</p>
               <p className="text-gray-400 text-sm">Drafts</p>
             </div>
           </div>
