@@ -20,9 +20,8 @@ import {
   Heading2,
   Heading3,
 } from "lucide-react";
-import { apiPost, apiPut } from "../src/lib/api";
+import { apiFetch, apiPost, apiPut } from "../src/lib/api";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 const AdminBlogEditor: React.FC = () => {
   const navigate = useNavigate();
@@ -58,9 +57,7 @@ const AdminBlogEditor: React.FC = () => {
 
     const loadBlog = async () => {
       try {
-        const res = await fetch(`${BASE_URL}/api/blogs/${id}`);
-        if (!res.ok) throw new Error("Failed to load blog");
-        const data = await res.json();
+        const data = await apiFetch<{ title: string; slug: string; cover_image_url?: string | null; content?: { html?: string } }>(`/api/blogs/${id}`);
 
         setTitle(data.title || "");
         setSlug(data.slug || "");

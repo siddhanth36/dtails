@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Pencil, Trash2 } from "lucide-react";
+import { apiDelete, apiFetch } from "../src/lib/api";
 
 type Blog = {
   id: string;
@@ -14,22 +15,28 @@ const AdminBlogsManage: React.FC = () => {
   const navigate = useNavigate();
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchBlogs = async () => {
-    const res = await fetch("http://localhost:4000/api/blogs");
-    const data = await res.json();
-    setBlogs(data);
-    setLoading(false);
+    setError(null);
+    try {
+      const data = await apiFetch<Blog[]>("/api/blogs");
+      setBlogs(data);
+    } catch (e: any) {
+      setError(e.message || "Failed to load blogs");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this blog?")) return;
-
-    await fetch(`http://localhost:4000/api/blogs/${id}`, {
-      method: "DELETE",
-    });
-
-    fetchBlogs();
+    try {
+      await apiDelete(`/api/blogs/${id}`);
+      fetchBlogs();
+    } catch (e: any) {
+      setError(e.message || "Failed to delete blog");
+    }
   };
 
   useEffect(() => {
@@ -51,6 +58,10 @@ const AdminBlogsManage: React.FC = () => {
 
         {loading ? (
           <p className="text-gray-400">Loading...</p>
+        ) : error ? (
+          <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-300">
+            {error}
+          </div>
         ) : blogs.length === 0 ? (
           <p className="text-gray-400">No blogs found.</p>
         ) : (

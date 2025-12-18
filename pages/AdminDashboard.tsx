@@ -175,7 +175,10 @@ const AdminDashboard: React.FC = () => {
                 <p className="text-white text-sm">Drafts: {caseLoading ? "Loading..." : draftCases}</p>
               </div>
             </div>
-            <button className="mt-4 w-full py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all text-sm font-medium">
+            <button
+              onClick={() => navigate('/admin/case-studies/manage')}
+              className="mt-4 w-full py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all text-sm font-medium"
+            >
               Manage Case Studies
             </button>
           </motion.div>
