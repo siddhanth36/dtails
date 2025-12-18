@@ -33,7 +33,9 @@ const AdminCaseStudyEditor: React.FC = () => {
 
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
+  const [summary, setSummary] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState("");
+  const [client, setClient] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(isEdit);
@@ -62,10 +64,20 @@ const AdminCaseStudyEditor: React.FC = () => {
 
     const loadCaseStudy = async () => {
       try {
-        const data = await apiFetch<{ title: string; slug: string; cover_image_url?: string | null; content?: { html?: string } }>(`/api/case-studies/${id}`);
+        const data = await apiFetch<{
+          title: string;
+          slug: string;
+          summary?: string | null;
+          cover_image?: string | null;
+          cover_image_url?: string | null;
+          client?: string | null;
+          content?: { html?: string };
+        }>(`/api/case-studies/${id}`);
         setTitle(data.title || "");
         setSlug(data.slug || "");
+        setSummary(data.summary || "");
         setCoverImageUrl(data.cover_image_url || "");
+        setClient(data.client || "");
         editor.commands.setContent(data?.content?.html || "");
       } catch (e: any) {
         setError(e.message || "Failed to load case study");
@@ -118,7 +130,10 @@ const AdminCaseStudyEditor: React.FC = () => {
       const payload = {
         title,
         slug,
+        summary,
+        cover_image: coverImageUrl,
         cover_image_url: coverImageUrl,
+        client,
         content: { html: editorHTML },
         published: false,
       };
@@ -144,7 +159,10 @@ const AdminCaseStudyEditor: React.FC = () => {
       const payload = {
         title,
         slug,
+        summary,
+        cover_image: coverImageUrl,
         cover_image_url: coverImageUrl,
+        client,
         content: { html: editorHTML },
         published: true,
       };
@@ -203,6 +221,20 @@ const AdminCaseStudyEditor: React.FC = () => {
             placeholder="Slug"
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
+          />
+
+          <input
+            className="bg-white/10 border border-white/10 rounded-xl px-4 py-3 text-white"
+            placeholder="Summary"
+            value={summary}
+            onChange={(e) => setSummary(e.target.value)}
+          />
+
+          <input
+            className="bg-white/10 border border-white/10 rounded-xl px-4 py-3 text-white"
+            placeholder="Client"
+            value={client}
+            onChange={(e) => setClient(e.target.value)}
           />
           
           {/* Cover Image Upload */}

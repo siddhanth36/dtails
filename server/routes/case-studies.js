@@ -28,6 +28,15 @@ async function ensureUniqueSlug(baseSlug) {
   return `${baseSlug}-${Date.now()}`;
 }
 
+async function ensureUniqueSlugForUpdate(baseSlug, recordId) {
+  const { rows } = await pool.query(
+    "SELECT id FROM case_studies WHERE slug = $1 AND id <> $2",
+    [baseSlug, recordId]
+  );
+  if (rows.length === 0) return baseSlug;
+  return `${baseSlug}-${Date.now()}`;
+}
+
 /**
  * GET all case studies
  */
@@ -84,10 +93,22 @@ router.get("/:id", async (req, res) => {
  */
 router.post("/", async (req, res) => {
   try {
-    const { title, content, cover_image_url } = req.body;
+    const {
+      title,
+      summary,
+      content,
+      cover_image,
+      cover_image_url,
+      client,
+      published,
+    } = req.body;
 
     if (!title || typeof title !== "string") {
       return res.status(400).json({ error: "Title is required" });
+    }
+
+    if (!content) {
+      return res.status(400).json({ error: "Content is required" });
     }
 
     const baseSlug = generateSlug(title);
@@ -95,11 +116,29 @@ router.post("/", async (req, res) => {
 
     const { rows } = await pool.query(
       `
-      INSERT INTO case_studies (title, slug, content, cover_image_url)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO case_studies (
+        title,
+        slug,
+        summary,
+        content,
+        cover_image,
+        cover_image_url,
+        client,
+        published
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *
       `,
-      [title.trim(), slug, content ?? "", cover_image_url ?? null]
+      [
+        title.trim(),
+        slug,
+        summary ?? null,
+        content,
+        cover_image ?? cover_image_url ?? null,
+        cover_image_url ?? cover_image ?? null,
+        client ?? null,
+        published === true,
+      ]
     );
 
     return res.status(201).json(rows[0]);
@@ -134,19 +173,11 @@ router.put("/:id", async (req, res) => {
 
     // Always regenerate slug from the (final) title
     const baseSlug = generateSlug(title);
-    // Exclude current id to avoid false positive on uniqueness if enforced
-    async function ensureUniqueSlugForUpdate(base, recordId) {
-      const { rows } = await pool.query(
-        "SELECT id FROM case_studies WHERE slug = $1 AND id <> $2",
-        [base, recordId]
-      );
-      if (rows.length === 0) return base;
-      return `${base}-${Date.now()}`;
-    }
     const slug = await ensureUniqueSlugForUpdate(baseSlug, id);
 
     const summary = req.body.summary ?? current.summary ?? null;
-    const content = req.body.content ?? current.content ?? null;
+    const content =
+      req.body.content !== undefined ? req.body.content : current.content ?? null;
     const cover_image =
       req.body.cover_image !== undefined
         ? req.body.cover_image
@@ -154,7 +185,7 @@ router.put("/:id", async (req, res) => {
     const cover_image_url =
       req.body.cover_image_url !== undefined
         ? req.body.cover_image_url
-        : current.cover_image_url ?? null;
+        : current.cover_image_url ?? cover_image ?? null;
     const client = req.body.client ?? current.client ?? null;
     const published =
       typeof req.body.published === "boolean"
