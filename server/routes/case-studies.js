@@ -115,25 +115,79 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, content, cover_image_url, published } = req.body;
+
+    // Load existing to preserve fields not provided
+    const existingRes = await pool.query(
+      "SELECT * FROM case_studies WHERE id = $1",
+      [id]
+    );
+    if (!existingRes.rows.length) {
+      return res.status(404).json({ error: "Case study not found" });
+    }
+    const current = existingRes.rows[0];
+
+    const newTitle = (req.body.title ?? current.title) || "";
+    const title = String(newTitle).trim();
+    if (!title) {
+      return res.status(400).json({ error: "Title is required" });
+    }
+
+    // Always regenerate slug from the (final) title
+    const baseSlug = generateSlug(title);
+    // Exclude current id to avoid false positive on uniqueness if enforced
+    async function ensureUniqueSlugForUpdate(base, recordId) {
+      const { rows } = await pool.query(
+        "SELECT id FROM case_studies WHERE slug = $1 AND id <> $2",
+        [base, recordId]
+      );
+      if (rows.length === 0) return base;
+      return `${base}-${Date.now()}`;
+    }
+    const slug = await ensureUniqueSlugForUpdate(baseSlug, id);
+
+    const summary = req.body.summary ?? current.summary ?? null;
+    const content = req.body.content ?? current.content ?? null;
+    const cover_image =
+      req.body.cover_image !== undefined
+        ? req.body.cover_image
+        : current.cover_image ?? null;
+    const cover_image_url =
+      req.body.cover_image_url !== undefined
+        ? req.body.cover_image_url
+        : current.cover_image_url ?? null;
+    const client = req.body.client ?? current.client ?? null;
+    const published =
+      typeof req.body.published === "boolean"
+        ? req.body.published
+        : current.published;
 
     const { rows } = await pool.query(
       `
       UPDATE case_studies
-      SET title = COALESCE($1, title),
-          content = COALESCE($2, content),
-          cover_image_url = $3,
-          published = COALESCE($4, published),
-          updated_at = NOW()
-      WHERE id = $5
+      SET
+        title = $1,
+        slug = $2,
+        summary = $3,
+        content = $4,
+        cover_image = $5,
+        cover_image_url = $6,
+        client = $7,
+        published = $8
+      WHERE id = $9
       RETURNING *
       `,
-      [title, content, cover_image_url ?? null, published, id]
+      [
+        title,
+        slug,
+        summary,
+        content,
+        cover_image,
+        cover_image_url,
+        client,
+        published,
+        id,
+      ]
     );
-
-    if (!rows.length) {
-      return res.status(404).json({ error: "Case study not found" });
-    }
 
     return res.json(rows[0]);
   } catch (err) {
