@@ -10,11 +10,6 @@
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
-    "@tiptap/extension-image": "^3.13.0",
-    "@tiptap/extension-link": "^3.13.0",
-    "@tiptap/extension-underline": "^3.13.0",
-    "@tiptap/react": "^3.13.0",
-    "@tiptap/starter-kit": "^3.13.0",
     "cors": "^2.8.5",
     "express": "^5.2.1",
     "framer-motion": "^11.15.0",

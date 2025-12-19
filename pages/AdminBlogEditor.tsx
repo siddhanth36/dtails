@@ -1,27 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
-import Underline from "@tiptap/extension-underline";
-import {
-  Bold,
-  Italic,
-  Underline as UnderlineIcon,
-  List,
-  ListOrdered,
-  Link as LinkIcon,
-  Image as ImageIcon,
-  Undo,
-  Redo,
-  Heading1,
-  Heading2,
-  Heading3,
-  Upload,
-  X,
-} from "lucide-react";
+import { Upload, X } from "lucide-react";
 import { apiFetch, apiPost, apiPut } from "../src/lib/api";
 import { useImageUpload } from "../src/hooks/useImageUpload";
 
@@ -34,31 +14,15 @@ const AdminBlogEditor: React.FC = () => {
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
+  const [contentFile, setContentFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(isEdit);
   const coverInputRef = useRef<HTMLInputElement>(null);
-  const editorImageInputRef = useRef<HTMLInputElement>(null);
-
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        heading: { levels: [1, 2, 3] },
-      }),
-      Underline,
-      Link.configure({ openOnClick: false }),
-      Image,
-    ],
-    content: "",
-    editorProps: {
-      attributes: {
-        class: "min-h-[420px] outline-none text-white leading-relaxed p-6 rounded-xl",
-      },
-    },
-  });
+  const docxInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!isEdit || !editor) return;
+    if (!isEdit) return;
 
     const loadBlog = async () => {
       try {
@@ -67,8 +31,6 @@ const AdminBlogEditor: React.FC = () => {
         setTitle(data.title || "");
         setSlug(data.slug || "");
         setCoverUrl(data.cover_image_url || "");
-
-        editor.commands.setContent(data?.content?.html || "");
       } catch (err: any) {
         setError(err.message || "Failed to load blog");
       } finally {
@@ -77,17 +39,27 @@ const AdminBlogEditor: React.FC = () => {
     };
 
     loadBlog();
-  }, [editor, id, isEdit]);
+  }, [id, isEdit]);
 
-  const setHeading = (level: 1 | 2 | 3) => {
-    editor?.chain().focus().setHeading({ level }).run();
-  };
+  useEffect(() => {
+    if (!isEdit) return;
 
-  const addLink = () => {
-    const url = window.prompt("Enter link URL");
-    if (!url) return;
-    editor?.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
-  };
+    const loadBlog = async () => {
+      try {
+        const data = await apiFetch<{ title: string; slug: string; cover_image_url?: string | null; content?: { html?: string } }>(`/api/blogs/${id}`);
+
+        setTitle(data.title || "");
+        setSlug(data.slug || "");
+        setCoverUrl(data.cover_image_url || "");
+      } catch (err: any) {
+        setError(err.message || "Failed to load blog");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadBlog();
+  }, [id, isEdit]);
 
   const handleCoverImageUpload = async (file: File | null) => {
     if (!file) return;
@@ -98,36 +70,78 @@ const AdminBlogEditor: React.FC = () => {
     }
   };
 
-  const handleEditorImageUpload = async (file: File | null) => {
-    if (!file || !editor) return;
-    setUploadError(null);
-    const url = await uploadImage(file);
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
+  const handleDocxFileChange = (file: File | null) => {
+    if (!file) return;
+    if (!file.name.endsWith(".docx")) {
+      setError("Only .docx files are allowed");
+      return;
+    }
+    setContentFile(file);
+    setError(null);
+  };
+
+  const uploadDocxAndGetContent = async (): Promise<string | null> => {
+    if (!contentFile) return null;
+
+    const formData = new FormData();
+    formData.append("contentFile", contentFile);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || "https://dtales-backend.onrender.com"}/api/uploads/docx`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to upload .docx file");
+      }
+
+      const data = await response.json();
+      return data.content;
+    } catch (err: any) {
+      setError(err.message || "Failed to process .docx file");
+      return null;
     }
   };
 
-  const addEditorImage = () => {
-    editorImageInputRef.current?.click();
-  };
-
   const handleSaveDraft = async () => {
-    if (!editor) return;
     setSaving(true);
     setError(null);
     try {
-      const editorHTML = editor.getHTML();
-      const payload = {
+      let htmlContent = "";
+      
+      // If editing and no new file, keep existing content
+      if (isEdit && !contentFile) {
+        htmlContent = ""; // Backend will preserve existing
+      } else if (contentFile) {
+        const content = await uploadDocxAndGetContent();
+        if (!content) {
+          setSaving(false);
+          return;
+        }
+        htmlContent = content;
+      }
+
+      const payload: any = {
         title,
         slug,
         cover_image_url: coverUrl,
-        content: { html: editorHTML },
         published: false,
       };
+
+      if (htmlContent) {
+        payload.content = { html: htmlContent };
+      }
       
       if (isEdit && id) {
         await apiPut(`/api/blogs/${id}`, payload);
       } else {
+        if (!contentFile) {
+          setError("Please upload a .docx file with your content");
+          setSaving(false);
+          return;
+        }
         await apiPost("/api/blogs", payload);
       }
     } catch (e: any) {
@@ -138,22 +152,42 @@ const AdminBlogEditor: React.FC = () => {
   };
 
   const handlePublish = async () => {
-    if (!editor) return;
     setSaving(true);
     setError(null);
     try {
-      const editorHTML = editor.getHTML();
-      const payload = {
+      let htmlContent = "";
+      
+      // If editing and no new file, keep existing content
+      if (isEdit && !contentFile) {
+        htmlContent = ""; // Backend will preserve existing
+      } else if (contentFile) {
+        const content = await uploadDocxAndGetContent();
+        if (!content) {
+          setSaving(false);
+          return;
+        }
+        htmlContent = content;
+      }
+
+      const payload: any = {
         title,
         slug,
         cover_image_url: coverUrl,
-        content: { html: editorHTML },
         published: true,
       };
+
+      if (htmlContent) {
+        payload.content = { html: htmlContent };
+      }
       
       if (isEdit && id) {
         await apiPut(`/api/blogs/${id}`, payload);
       } else {
+        if (!contentFile) {
+          setError("Please upload a .docx file with your content");
+          setSaving(false);
+          return;
+        }
         await apiPost("/api/blogs", payload);
       }
       
@@ -172,7 +206,7 @@ const AdminBlogEditor: React.FC = () => {
           {isEdit ? "Edit Blog" : "New Blog"}
         </motion.h1>
 
-        {(loading || !editor) && (
+        {loading && (
           <div className="mb-4 p-4 rounded-xl bg-white/5 border border-white/10 text-gray-200 text-center">
             Loading blog…
           </div>
@@ -241,109 +275,47 @@ const AdminBlogEditor: React.FC = () => {
               className="hidden"
             />
           </div>
-        </div>
 
-        <div className="bg-white/10 border border-white/10 backdrop-blur-lg rounded-xl">
-          <div className="sticky top-24 bg-black/30 border-b border-white/10 px-4 py-2 flex gap-2 flex-wrap">
-            <button
-              aria-label="Heading 1"
-              className="px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20"
-              onClick={() => setHeading(1)}
-            >
-              <Heading1 size={16} />
-            </button>
-            <button
-              aria-label="Heading 2"
-              className="px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20"
-              onClick={() => setHeading(2)}
-            >
-              <Heading2 size={16} />
-            </button>
-            <button
-              aria-label="Heading 3"
-              className="px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20"
-              onClick={() => setHeading(3)}
-            >
-              <Heading3 size={16} />
-            </button>
-
-            <button
-              aria-label="Bold"
-              className="px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20"
-              onClick={() => editor?.chain().focus().toggleBold().run()}
-            >
-              <Bold size={16} />
-            </button>
-            <button
-              aria-label="Italic"
-              className="px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20"
-              onClick={() => editor?.chain().focus().toggleItalic().run()}
-            >
-              <Italic size={16} />
-            </button>
-            <button
-              aria-label="Underline"
-              className="px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20"
-              onClick={() => editor?.chain().focus().toggleUnderline().run()}
-            >
-              <UnderlineIcon size={16} />
-            </button>
-
-            <button
-              aria-label="Bullet List"
-              className="px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20"
-              onClick={() => editor?.chain().focus().toggleBulletList().run()}
-            >
-              <List size={16} />
-            </button>
-            <button
-              aria-label="Ordered List"
-              className="px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20"
-              onClick={() => editor?.chain().focus().toggleOrderedList().run()}
-            >
-              <ListOrdered size={16} />
-            </button>
-
-            <button
-              aria-label="Add Link"
-              className="px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20"
-              onClick={addLink}
-            >
-              <LinkIcon size={16} />
-            </button>
-            <button
-              aria-label="Add Image"
-              className="px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 disabled:opacity-60"
-              onClick={addEditorImage}
-              disabled={uploadingImage}
-            >
-              <ImageIcon size={16} />
-            </button>
+          {/* Content File Upload (.docx) */}
+          <div className="md:col-span-2">
+            <label className="block text-sm text-gray-300 mb-2">
+              Upload Content (.docx from Google Docs)
+            </label>
+            <div className="flex gap-3 items-center">
+              <button
+                type="button"
+                onClick={() => docxInputRef.current?.click()}
+                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-xl font-semibold transition"
+              >
+                <Upload size={18} />
+                Choose .docx File
+              </button>
+              {contentFile && (
+                <div className="flex-1 flex items-center gap-3">
+                  <span className="text-gray-300">{contentFile.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => setContentFile(null)}
+                    className="text-red-400 hover:text-red-300"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              )}
+            </div>
             <input
-              ref={editorImageInputRef}
+              ref={docxInputRef}
               type="file"
-              accept="image/*"
-              onChange={(e) => handleEditorImageUpload(e.target.files?.[0] || null)}
+              accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              onChange={(e) => handleDocxFileChange(e.target.files?.[0] || null)}
               className="hidden"
             />
-
-            <button
-              aria-label="Undo"
-              className="px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20"
-              onClick={() => editor?.chain().focus().undo().run()}
-            >
-              <Undo size={16} />
-            </button>
-            <button
-              aria-label="Redo"
-              className="px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20"
-              onClick={() => editor?.chain().focus().redo().run()}
-            >
-              <Redo size={16} />
-            </button>
+            {isEdit && !contentFile && (
+              <p className="text-xs text-gray-400 mt-2">
+                Leave empty to keep existing content
+              </p>
+            )}
           </div>
-
-          <EditorContent editor={editor} />
         </div>
 
         <div className="mt-6 flex gap-4 justify-end">

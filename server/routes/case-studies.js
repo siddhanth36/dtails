@@ -96,7 +96,6 @@ router.post("/", async (req, res) => {
     const {
       title,
       summary,
-      content,
       cover_image,
       cover_image_url,
       client,
@@ -107,7 +106,15 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "Title is required" });
     }
 
-    if (!content) {
+    // Extract HTML from content (handles both string and { html: "..." })
+    let contentHtml = "";
+    if (typeof req.body.content === "string") {
+      contentHtml = req.body.content;
+    } else if (req.body.content && typeof req.body.content.html === "string") {
+      contentHtml = req.body.content.html;
+    }
+
+    if (!contentHtml) {
       return res.status(400).json({ error: "Content is required" });
     }
 
@@ -133,7 +140,7 @@ router.post("/", async (req, res) => {
         title.trim(),
         slug,
         summary ?? null,
-        content,
+        contentHtml,
         cover_image ?? cover_image_url ?? null,
         cover_image_url ?? cover_image ?? null,
         client ?? null,
@@ -176,8 +183,17 @@ router.put("/:id", async (req, res) => {
     const slug = await ensureUniqueSlugForUpdate(baseSlug, id);
 
     const summary = req.body.summary ?? current.summary ?? null;
-    const content =
-      req.body.content !== undefined ? req.body.content : current.content ?? null;
+    
+    // Extract HTML from content (handles both string and { html: "..." })
+    let content = current.content ?? null;
+    if (req.body.content !== undefined) {
+      if (typeof req.body.content === "string") {
+        content = req.body.content;
+      } else if (req.body.content && typeof req.body.content.html === "string") {
+        content = req.body.content.html;
+      }
+    }
+    
     const cover_image =
       req.body.cover_image !== undefined
         ? req.body.cover_image
