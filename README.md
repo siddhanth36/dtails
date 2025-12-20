@@ -2,15 +2,31 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Run and deploy your AI Studio app
+# DTales Tech - Professional CMS
 
-This contains everything you need to run your app locally.
+A modern, production-ready Content Management System with blog and case study management.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1OpQa4_-Ln_YMgpsuyQOZx7s242IuCi22
+## 🎉 Upload System - NOW FIXED!
+
+All uploads now use **Cloudinary** for permanent, reliable storage.
+
+### Quick Start for Deployment
+
+1. **Read:** [`DEPLOYMENT_CHECKLIST.md`](DEPLOYMENT_CHECKLIST.md) - Step-by-step deployment guide
+2. **Setup:** Get Cloudinary credentials from https://cloudinary.com
+3. **Configure:** Set environment variables in Render
+4. **Deploy:** Push and deploy!
+
+### Documentation
+
+- 📋 [`DEPLOYMENT_CHECKLIST.md`](DEPLOYMENT_CHECKLIST.md) - Complete deployment checklist
+- 📖 [`CLOUDINARY_DEPLOYMENT_GUIDE.md`](CLOUDINARY_DEPLOYMENT_GUIDE.md) - Comprehensive guide
+- ✅ [`UPLOADS_FIXED_SUMMARY.md`](UPLOADS_FIXED_SUMMARY.md) - What was fixed
+- 🔍 [`verify-cloudinary-setup.sh`](verify-cloudinary-setup.sh) - Automated verification
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
+**Prerequisites:** Node.js, PostgreSQL
 
 
 1. Install dependencies:

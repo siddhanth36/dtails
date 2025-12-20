@@ -35,8 +35,8 @@ const upload = multer({
 
 /**
  * POST /api/uploads/image
- * Upload a single image file
- * Returns { url: "/uploads/filename.ext" }
+ * Upload a single image file to Cloudinary
+ * Returns { url: "https://res.cloudinary.com/..." }
  */
 router.post("/image", (req, res) => {
   const uploadHandler = upload.single("image");
@@ -72,8 +72,8 @@ router.post("/image", (req, res) => {
 
 /**
  * POST /api/uploads/docx
- * Upload a .docx file and convert to HTML
- * Returns { content: "<html>...</html>" }
+ * Upload a .docx file to Cloudinary, convert to HTML, and upload embedded images
+ * Returns { html: "<html with Cloudinary image URLs>...", images: [...] }
  */
 // DOCX uses in-memory storage; also stored to Cloudinary as raw
 
