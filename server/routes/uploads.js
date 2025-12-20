@@ -1,7 +1,7 @@
 const { Router } = require("express");
 const multer = require("multer");
 const mammoth = require("mammoth");
-const { cloudinary } = require("../config/cloudinary");
+const cloudinary = require("../config/cloudinary");
 
 const router = Router();
 

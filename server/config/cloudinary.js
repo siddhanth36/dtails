@@ -1,22 +1,20 @@
-const { v2: cloudinary } = require("cloudinary");
+const cloudinary = require("cloudinary").v2;
 
 // Configure Cloudinary ONCE at startup with validation
-function configureCloudinary() {
-  const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } = process.env;
-
-  if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
-    throw new Error(
-      "Cloudinary configuration missing. Required env vars: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET"
-    );
-  }
-
-  cloudinary.config({
-    cloud_name: CLOUDINARY_CLOUD_NAME,
-    api_key: CLOUDINARY_API_KEY,
-    api_secret: CLOUDINARY_API_SECRET,
-  });
-
-  console.log(`✅ Cloudinary configured for: ${CLOUDINARY_CLOUD_NAME}`);
+if (
+  !process.env.CLOUDINARY_CLOUD_NAME ||
+  !process.env.CLOUDINARY_API_KEY ||
+  !process.env.CLOUDINARY_API_SECRET
+) {
+  throw new Error("Missing required Cloudinary environment variables");
 }
 
-module.exports = { cloudinary, configureCloudinary };
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME.trim(),
+  api_key: process.env.CLOUDINARY_API_KEY.trim(),
+  api_secret: process.env.CLOUDINARY_API_SECRET.trim(),
+});
+
+console.log("✅ Cloudinary configured for:", process.env.CLOUDINARY_CLOUD_NAME);
+
+module.exports = cloudinary;

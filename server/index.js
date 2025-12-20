@@ -1,7 +1,11 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-const { configureCloudinary } = require("./config/cloudinary");
+
+// ============================================================================
+// Initialize Cloudinary (will throw if env vars missing)
+// ============================================================================
+require("./config/cloudinary");
 
 // ============================================================================
 // FAIL-FAST: Validate all required environment variables at startup
@@ -25,14 +29,6 @@ if (missingVars.length > 0) {
 }
 
 console.log("✅ Environment variables validated");
-
-// Validate and configure Cloudinary at startup
-try {
-  configureCloudinary();
-} catch (error) {
-  console.error("❌ STARTUP ERROR:", error.message);
-  process.exit(1);
-}
 
 const blogsRouter = require("./routes/blogs");
 const caseStudiesRouter = require("./routes/case-studies");
