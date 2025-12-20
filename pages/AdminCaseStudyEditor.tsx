@@ -3,19 +3,19 @@ import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 import { Upload, X } from "lucide-react";
 import { apiFetch, apiPost, apiPut } from "../src/lib/api";
-import { useImageUpload } from "../src/hooks/useImageUpload";
+import { uploadImage as uploadImageHelper, uploadDocx } from "../src/lib/uploads";
 
 const AdminCaseStudyEditor: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = Boolean(id);
-  const { uploadImage, uploading: uploadingImage, error: uploadError, setError: setUploadError } = useImageUpload();
 
   const [title, setTitle] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [contentFile, setContentFile] = useState<File | null>(null);
   const [docxContent, setDocxContent] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(isEdit);
   const coverInputRef = useRef<HTMLInputElement>(null);
@@ -45,51 +45,36 @@ const AdminCaseStudyEditor: React.FC = () => {
 
   const handleCoverImageUpload = async (file: File | null) => {
     if (!file) return;
-    setUploadError(null);
-    const url = await uploadImage(file);
-    if (url) {
-      setCoverImageUrl(url);
+    setError(null);
+    setUploadingImage(true);
+    try {
+      const url = await uploadImageHelper(file);
+      if (url) {
+        setCoverImageUrl(url);
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to upload image");
+    } finally {
+      setUploadingImage(false);
     }
   };
 
   const handleDocxFileChange = async (file: File | null) => {
     if (!file) return;
-    if (!file.name.endsWith(".docx")) {
-      setError("Only .docx files are allowed");
-      return;
-    }
     setError(null);
     setContentFile(file);
     setDocxContent(null);
 
-    const html = await uploadDocxAndGetContent(file);
-    if (html) {
-      setDocxContent(html);
-    } else {
-      setContentFile(null);
-    }
-  };
-
-  const uploadDocxAndGetContent = async (file: File): Promise<string | null> => {
-    const formData = new FormData();
-    formData.append("contentFile", file);
-
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || "https://dtales-backend.onrender.com"}/api/uploads/docx`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to upload .docx file");
+      const html = await uploadDocx(file);
+      if (html) {
+        setDocxContent(html);
+      } else {
+        setContentFile(null);
       }
-
-      const data = await response.json();
-      return data.html;
     } catch (err: any) {
       setError(err.message || "Failed to process .docx file");
-      return null;
+      setContentFile(null);
     }
   };
 
@@ -187,15 +172,6 @@ const AdminCaseStudyEditor: React.FC = () => {
         {error && (
           <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-300">
             {error}
-          </div>
-        )}
-
-        {uploadError && (
-          <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-300 flex justify-between items-center">
-            <span>{uploadError}</span>
-            <button onClick={() => setUploadError(null)}>
-              <X size={18} />
-            </button>
           </div>
         )}
 

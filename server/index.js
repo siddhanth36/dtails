@@ -3,6 +3,29 @@ const cors = require("cors");
 const path = require("path");
 const { configureCloudinary } = require("./config/cloudinary");
 
+// ============================================================================
+// FAIL-FAST: Validate all required environment variables at startup
+// ============================================================================
+const requiredEnv = [
+  "CLOUDINARY_CLOUD_NAME",
+  "CLOUDINARY_API_KEY",
+  "CLOUDINARY_API_SECRET",
+  "DATABASE_URL",
+];
+
+const missingVars = requiredEnv.filter((key) => !process.env[key]);
+
+if (missingVars.length > 0) {
+  console.error("❌ STARTUP FAILED - Missing required environment variables:");
+  missingVars.forEach((key) => {
+    console.error(`   - ${key}`);
+  });
+  console.error("\nSet these variables in your .env file and try again.");
+  process.exit(1);
+}
+
+console.log("✅ Environment variables validated");
+
 // Validate and configure Cloudinary at startup
 try {
   configureCloudinary();
