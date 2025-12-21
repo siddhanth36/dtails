@@ -2,7 +2,7 @@
 
 ## Status: ✅ COMPLETE AND VERIFIED
 
-This document confirms that the environment configuration system has been hardened for production deployment on Render.
+This document confirms that the environment configuration system has been hardened for production deployment on Render using Supabase Storage.
 
 ---
 
@@ -15,16 +15,15 @@ This document confirms that the environment configuration system has been harden
 - No fallback logic or DATABASE_URI alternatives
 - **Verification:** All database connections use DATABASE_URL only
 
-### 2. ✅ Cloudinary Configuration
-**File:** `server/config/cloudinary.js`
-- Reads ONLY from three explicit environment variables:
-  - `CLOUDINARY_CLOUD_NAME`
-  - `CLOUDINARY_API_KEY`
-  - `CLOUDINARY_API_SECRET`
-- Does NOT read from `CLOUDINARY_URL`
+### 2. ✅ Supabase Storage Configuration
+**File:** `server/config/supabase.js`
+- Reads ONLY from two explicit environment variables:
+  - `SUPABASE_URL`
+  - `SUPABASE_SERVICE_ROLE_KEY`
+- No fallback logic or alternative configurations
 - Fails fast at startup if any are missing
 - Configuration happens once during module load
-- **Verification:** No hardcoded values, no fallbacks
+- **Verification:** No hardcoded values, no fallbacks, no Cloudinary references
 
 ### 3. ✅ Startup Validation (Fail-Fast)
 **File:** `server/index.js`
@@ -32,16 +31,16 @@ This document confirms that the environment configuration system has been harden
 - Immediately exits process (exit code 1) if any are missing
 - Clear, unambiguous error messages listing missing variables
 - Validates in this order:
-  1. CLOUDINARY_CLOUD_NAME
-  2. CLOUDINARY_API_KEY
-  3. CLOUDINARY_API_SECRET
+  1. SUPABASE_URL
+  2. SUPABASE_SERVICE_ROLE_KEY
+  3. SUPABASE_BUCKET
   4. DATABASE_URL
 
 **Required Variables (4 total):**
 ```
-CLOUDINARY_CLOUD_NAME
-CLOUDINARY_API_KEY
-CLOUDINARY_API_SECRET
+SUPABASE_URL
+SUPABASE_SERVICE_ROLE_KEY
+SUPABASE_BUCKET
 DATABASE_URL
 ```
 
@@ -59,15 +58,17 @@ PORT            (defaults to 10000)
 - Includes validation section with failure instructions
 - No legacy or unused variables
 - Comments explain purpose and constraints
+- Removed all Cloudinary references
 - **Format:** Plain dotenv format for easy copying to .env
 
 ### 5. ✅ Code Cleanliness
 - ✅ No `require("dotenv")` or `dotenv.config()` in application code
   - (Rely on Render or process manager to load .env)
 - ✅ No `DATABASE_URI` aliases anywhere
-- ✅ No `CLOUDINARY_URL` fallback
+- ✅ No `CLOUDINARY_*` variables anywhere
 - ✅ No duplicate environment configurations
 - ✅ No conditional logic hiding missing variables
+- ✅ All image uploads to Supabase Storage only
 
 ---
 
@@ -77,25 +78,25 @@ PORT            (defaults to 10000)
 
 | Variable | Usage | Required | Validation |
 |----------|-------|----------|-----------|
+| `SUPABASE_URL` | Supabase project URL | **YES** | Must be valid HTTPS URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase authentication | **YES** | Must not be empty |
+| `SUPABASE_BUCKET` | Storage bucket name | **YES** | Bucket must exist and be PUBLIC |
 | `DATABASE_URL` | PostgreSQL connection string | **YES** | Must be valid postgresql:// URL |
-| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud identifier | **YES** | Must not be empty |
-| `CLOUDINARY_API_KEY` | Cloudinary authentication | **YES** | Must not be empty |
-| `CLOUDINARY_API_SECRET` | Cloudinary authentication | **YES** | Must not be empty |
 | `NODE_ENV` | Environment mode (production/development) | No | Affects SSL in db.js |
 | `FRONTEND_URL` | CORS origin whitelist | No | If not set, allows all origins (*) |
 | `PORT` | Server listening port | No | Defaults to 10000 |
 
-### Cloudinary Initialization (server/config/cloudinary.js)
+### Supabase Initialization (server/config/supabase.js)
 
 Only reads:
-- `process.env.CLOUDINARY_CLOUD_NAME`
-- `process.env.CLOUDINARY_API_KEY`
-- `process.env.CLOUDINARY_API_SECRET`
+- `process.env.SUPABASE_URL`
+- `process.env.SUPABASE_SERVICE_ROLE_KEY`
 
 Does NOT read:
-- ❌ `CLOUDINARY_URL` (legacy format)
+- ❌ Cloudinary variables (all removed)
 - ❌ Hardcoded values
 - ❌ Fallback values
+- ❌ Legacy formats
 
 ---
 
@@ -110,9 +111,9 @@ Does NOT read:
 ### Render Production
 1. Set environment variables in Render dashboard:
    - `DATABASE_URL` = Render PostgreSQL connection string
-   - `CLOUDINARY_CLOUD_NAME` = Your cloud name
-   - `CLOUDINARY_API_KEY` = Your API key
-   - `CLOUDINARY_API_SECRET` = Your API secret
+   - `SUPABASE_URL` = Your Supabase project URL (e.g., https://abc123.supabase.co)
+   - `SUPABASE_SERVICE_ROLE_KEY` = Your service role key (from Supabase API settings)
+   - `SUPABASE_BUCKET` = Your public storage bucket name (e.g., uploads)
    - `NODE_ENV` = `production`
    - `FRONTEND_URL` = Your frontend URL (e.g., https://dtales.vercel.app)
 2. Deploy from git
@@ -125,14 +126,14 @@ Does NOT read:
 ```bash
 cd server
 cat .env  # Verify all required variables are set
-npm start # Should show "✅ Environment variables validated" + "✅ Cloudinary configured successfully"
+npm start # Should show "✅ Environment variables validated" + "✅ Supabase configured successfully"
 ```
 
 **Production (Render):**
 ```
 Check Build & Deploy logs for:
   ✅ Environment variables validated
-  ✅ Cloudinary configured successfully
+  ✅ Supabase configured successfully
   Backend running on port 10000
 ```
 
@@ -140,10 +141,26 @@ Check Build & Deploy logs for:
 
 ## ERROR SCENARIOS
 
-### Missing CLOUDINARY_CLOUD_NAME
+### Missing SUPABASE_URL
 ```
 ❌ STARTUP FAILED - Missing required environment variables:
-   - CLOUDINARY_CLOUD_NAME
+   - SUPABASE_URL
+
+Set these variables in your .env file and try again.
+```
+
+### Missing SUPABASE_SERVICE_ROLE_KEY
+```
+❌ STARTUP FAILED - Missing required environment variables:
+   - SUPABASE_SERVICE_ROLE_KEY
+
+Set these variables in your .env file and try again.
+```
+
+### Missing SUPABASE_BUCKET
+```
+❌ STARTUP FAILED - Missing required environment variables:
+   - SUPABASE_BUCKET
 
 Set these variables in your .env file and try again.
 ```
@@ -159,17 +176,17 @@ Set these variables in your .env file and try again.
 ### All Missing
 ```
 ❌ STARTUP FAILED - Missing required environment variables:
-   - CLOUDINARY_CLOUD_NAME
-   - CLOUDINARY_API_KEY
-   - CLOUDINARY_API_SECRET
+   - SUPABASE_URL
+   - SUPABASE_SERVICE_ROLE_KEY
+   - SUPABASE_BUCKET
    - DATABASE_URL
 
 Set these variables in your .env file and try again.
 ```
 
-### Cloudinary Config Error
+### Supabase Config Error
 ```
-❌ STARTUP ERROR: Cloudinary configuration missing. Required env vars: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
+Error: Missing required Supabase environment variables (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 ```
 
 ---
@@ -177,26 +194,33 @@ Set these variables in your .env file and try again.
 ## FILES MODIFIED
 
 1. **server/index.js**
-   - Added fail-fast environment validation (lines 7-25)
-   - Validates 4 required variables before startup
+   - Updated fail-fast environment validation (lines 7-25)
+   - Validates SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_BUCKET, DATABASE_URL
+   - Removed Cloudinary comment
    - Clear error messages with variable names
 
-2. **server/config/cloudinary.js**
-   - ✅ Already correct (uses explicit env vars only)
-   - No changes needed
+2. **server/config/supabase.js**
+   - Properly configured for Supabase Storage
+   - Uses Service Role Key for server-side access
+   - Fails fast if credentials missing
 
-3. **server/db.js**
+3. **server/config/cloudinary.js**
+   - ✅ DELETED (no longer needed)
+
+4. **server/db.js**
    - ✅ Already correct (uses DATABASE_URL only)
    - No changes needed
 
-4. **server/routes/uploads.js**
-   - ✅ Already correct (reads from cloudinary config)
-   - No direct env var access
+5. **server/routes/uploads.js**
+   - ✅ Already correct (uses Supabase for all uploads)
+   - Handles cover images and embedded DOCX images
+   - Returns public Supabase URLs
 
-5. **server/.env.example**
-   - Completely rewritten with clear documentation
-   - Includes all required and optional variables
-   - Includes validation section
+6. **server/.env.example**
+   - Completely rewritten for Supabase
+   - Removed all Cloudinary variables
+   - Added Supabase configuration section
+   - Added SUPABASE_BUCKET variable
 
 ---
 
@@ -216,12 +240,14 @@ Set these variables in your .env file and try again.
 - No fallback logic
 - No defaults for required variables
 - No environment-specific code paths (except NODE_ENV)
+- NO Cloudinary references anywhere
 
 ✅ **Upload System Working**
-- Cloudinary configured before accepting requests
-- All image uploads require valid Cloudinary credentials
-- All DOCX parsing requires valid Cloudinary for embedded images
-- No uploads can succeed without proper env vars
+- Supabase configured before accepting requests
+- All image uploads use Supabase Storage
+- All DOCX embedded images uploaded to Supabase
+- All image URLs are public Supabase URLs
+- Deterministic file paths for reproducibility
 
 ✅ **Database Connection Working**
 - Database URL validated
@@ -239,12 +265,12 @@ Set these variables in your .env file and try again.
 
 2. **For Local Testing:**
    - Copy `.env.example` to `.env`
-   - Fill in values from your local PostgreSQL and Cloudinary setup
+   - Fill in values from your Supabase project and local PostgreSQL
    - Run `npm start` and verify success messages
 
 3. **For Troubleshooting:**
    - If server fails to start, check for missing env variables
-   - If uploads fail, check Cloudinary credentials are correct
+   - If uploads fail, check Supabase bucket is PUBLIC and credentials are correct
    - If database fails, check DATABASE_URL is valid
 
 ---
@@ -252,7 +278,7 @@ Set these variables in your .env file and try again.
 ## VERIFICATION SUMMARY
 
 - ✅ DATABASE_URL used everywhere (no DATABASE_URI)
-- ✅ Cloudinary only reads explicit env vars (no CLOUDINARY_URL)
+- ✅ Supabase uses explicit env vars (no CLOUDINARY_* anywhere)
 - ✅ Startup validation checks 4 required variables
 - ✅ .env.example includes all required + optional variables
 - ✅ No dotenv loading in code (relies on process manager)
@@ -260,10 +286,13 @@ Set these variables in your .env file and try again.
 - ✅ No duplicate configurations
 - ✅ Error messages are clear and unambiguous
 - ✅ Identical behavior local and production
-- ✅ Production-ready for Render deployment
+- ✅ NO Cloudinary references in code or config
+- ✅ Production-ready for Render deployment with Supabase
 
 ---
 
-**Last Updated:** 2025-12-20  
+**Last Updated:** 2025-12-21  
 **Status:** Production-Ready  
+**Storage:** Supabase Storage (not Cloudinary)  
 **Handover:** Safe for client deployment
+

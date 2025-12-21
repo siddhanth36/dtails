@@ -11,10 +11,10 @@ This backend is configured for production deployment on Render with fail-fast en
 These MUST be set or the server will not start.
 
 ```env
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
 DATABASE_URL=postgresql://user:password@host:port/dbname
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+SUPABASE_BUCKET=your_bucket_name
 ```
 
 ---
@@ -33,32 +33,41 @@ PORT=10000                       # Server port (defaults to 10000)
 
 ## HOW TO DEPLOY ON RENDER
 
-### Step 1: Set Environment Variables
+### Step 1: Prepare Supabase
+
+1. Create a Supabase project (or use existing)
+2. Create a storage bucket (must be PUBLIC)
+3. Get credentials from Supabase dashboard:
+   - Project URL (Settings → General → Project URL)
+   - Service Role Key (Settings → API → Service Role secret)
+   - Bucket name (Storage → Buckets)
+
+### Step 2: Set Environment Variables
 
 In Render Dashboard → Your Service → Environment:
 
 | Variable | Value |
 |----------|-------|
 | `DATABASE_URL` | Your PostgreSQL connection string from Render |
-| `CLOUDINARY_CLOUD_NAME` | From https://cloudinary.com/console |
-| `CLOUDINARY_API_KEY` | From https://cloudinary.com/console |
-| `CLOUDINARY_API_SECRET` | From https://cloudinary.com/console |
+| `SUPABASE_URL` | From Supabase project settings |
+| `SUPABASE_SERVICE_ROLE_KEY` | From Supabase API settings |
+| `SUPABASE_BUCKET` | Your public storage bucket name |
 | `NODE_ENV` | `production` |
 | `FRONTEND_URL` | Your frontend URL (e.g., https://dtales.vercel.app) |
 
-### Step 2: Deploy
+### Step 3: Deploy
 
 Push to git and deploy. The server will:
 1. Validate all 4 required environment variables
-2. Configure Cloudinary
+2. Configure Supabase Storage
 3. Start listening on the specified PORT
 
-### Step 3: Verify
+### Step 4: Verify
 
 Check the deployment logs for:
 ```
 ✅ Environment variables validated
-✅ Cloudinary configured successfully
+✅ Supabase configured successfully
 Backend running on port 10000
 ```
 
@@ -77,9 +86,9 @@ cp .env.example .env
 
 Edit `.env` and fill in:
 - `DATABASE_URL` - your local PostgreSQL
-- `CLOUDINARY_CLOUD_NAME` - your Cloudinary credentials
-- `CLOUDINARY_API_KEY` - your Cloudinary credentials
-- `CLOUDINARY_API_SECRET` - your Cloudinary credentials
+- `SUPABASE_URL` - your Supabase project URL
+- `SUPABASE_SERVICE_ROLE_KEY` - your Supabase service role key
+- `SUPABASE_BUCKET` - your public bucket name
 
 ### Step 2: Start Server
 
@@ -91,13 +100,13 @@ npm start
 Should see:
 ```
 ✅ Environment variables validated
-✅ Cloudinary configured successfully
+✅ Supabase configured successfully
 Backend running on port 10000
 ```
 
 ### Step 3: Test Uploads
 
-Try uploading an image via the admin panel. It should succeed if credentials are valid.
+Try uploading an image via the admin panel. It should upload to Supabase Storage and return a public URL.
 
 ---
 
@@ -109,17 +118,19 @@ Try uploading an image via the admin panel. It should succeed if credentials are
 
 **Fix:** 
 - Check your `.env` file (local) or Render dashboard (production)
-- Ensure these 4 are present: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, DATABASE_URL
+- Ensure these 4 are present: DATABASE_URL, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_BUCKET
 - Server will list which ones are missing in the error message
 
-### Uploads fail - "Cloudinary upload failed"
+### Uploads fail - "Supabase upload failed"
 
-**Cause:** Cloudinary credentials are invalid or not configured.
+**Cause:** Supabase credentials are invalid, bucket doesn't exist, or bucket is not PUBLIC.
 
 **Fix:**
-- Verify CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET are correct
-- Get credentials from https://cloudinary.com/console
-- Restart server after updating
+- Verify SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are correct
+- Ensure the bucket exists in Supabase Storage
+- Ensure the bucket has PUBLIC access (not private)
+- Check Supabase logs for detailed errors
+- Restart server after fixing
 
 ### Database connection fails
 
@@ -136,9 +147,33 @@ Try uploading an image via the admin panel. It should succeed if credentials are
 
 - ✅ Never commit `.env` to git (use `.env.example` as template)
 - ✅ Environment variables are NOT logged in console
-- ✅ Cloudinary credentials are validated at startup only
+- ✅ Supabase credentials are validated at startup only
 - ✅ Database connections use SSL in production (`NODE_ENV=production`)
 - ✅ No hardcoded secrets in source code
+- ✅ All images stored in Supabase Storage (no local files)
+
+---
+
+## SUPABASE STORAGE SETUP
+
+### Create a Public Bucket
+
+1. Go to Supabase dashboard → Storage
+2. Click "Create a new bucket"
+3. Name: `uploads` (or your chosen name)
+4. Make it PUBLIC (allow public access to files)
+5. Click Create
+
+### Configure File Paths
+
+Images are stored with deterministic paths:
+```
+uploads/{timestamp}-{random}.{extension}
+```
+
+Example: `uploads/1703030400000-a1b2c3.png`
+
+Embedded images from DOCX files are also stored in the same bucket and have public URLs.
 
 ---
 
@@ -147,6 +182,7 @@ Try uploading an image via the admin panel. It should succeed if credentials are
 For complete details, see [ENVIRONMENT_CONFIGURATION.md](./ENVIRONMENT_CONFIGURATION.md)
 
 ---
+
 
 **Last Updated:** 2025-12-20  
 **Version:** 1.0  

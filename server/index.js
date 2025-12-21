@@ -40,8 +40,6 @@ app.use(cors({
 
 app.use(express.json());
 
-// No local static uploads; all assets served from Cloudinary
-
 app.get("/health", (_, res) => {
   res.json({ status: "ok" });
 });

@@ -8,6 +8,6 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-console.log("✅ Supabase configured");
+console.log("✅ Supabase configured successfully");
 
 module.exports = supabase;
