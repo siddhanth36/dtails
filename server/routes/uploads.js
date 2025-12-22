@@ -203,7 +203,7 @@ router.post("/docx", (req, res) => {
               const url = await uploadImageToSupabase(
                 supabase,
                 buffer,
-                `docx-embedded-${Date.now()}.png`,
+                "docx-embedded-".concat(Date.now(), ".png"),
                 image.contentType || "image/png"
               );
               uploadedImages.push(url);
@@ -217,12 +217,12 @@ router.post("/docx", (req, res) => {
         }
       );
 
-      console.log(`✅ DOCX parsed. Uploaded ${uploadedImages.length} embedded images to Supabase`);
+      console.log("✅ DOCX parsed. Uploaded ".concat(uploadedImages.length, " embedded images to Supabase"));
       return res.status(200).json({ html: result.value, images: uploadedImages });
     } catch (parseErr) {
       console.error("❌ DOCX parse error:", parseErr.message);
       return res.status(500).json({
-        message: `Failed to parse .docx file: ${parseErr.message}`,
+        message: "Failed to parse .docx file: ".concat(parseErr.message),
         source: "docx_parse",
       });
     }

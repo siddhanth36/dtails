@@ -23,7 +23,7 @@ async function uploadImageToSupabase(supabase, buffer, filename, mimeType) {
     throw new Error("Empty buffer provided - cannot upload empty file");
   }
 
-  const filePath = `${Date.now()}-${filename}`;
+  const filePath = "".concat(Date.now(), "-", filename);
 
   const { error } = await supabase.storage
     .from(SUPABASE_BUCKET)
@@ -34,7 +34,7 @@ async function uploadImageToSupabase(supabase, buffer, filename, mimeType) {
 
   if (error) {
     console.error("❌ Supabase upload error:", error);
-    throw new Error(`Supabase upload failed: ${error.message}`);
+    throw new Error("Supabase upload failed: ".concat(error.message));
   }
 
   const { data } = supabase.storage

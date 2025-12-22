@@ -25,7 +25,7 @@ async function ensureUniqueSlug(baseSlug) {
   );
 
   if (rows.length === 0) return baseSlug;
-  return `${baseSlug}-${Date.now()}`;
+  return "".concat(baseSlug, "-", Date.now());
 }
 
 async function ensureUniqueSlugForUpdate(baseSlug, recordId) {
@@ -34,7 +34,7 @@ async function ensureUniqueSlugForUpdate(baseSlug, recordId) {
     [baseSlug, recordId]
   );
   if (rows.length === 0) return baseSlug;
-  return `${baseSlug}-${Date.now()}`;
+  return "".concat(baseSlug, "-", Date.now());
 }
 
 /**
@@ -118,17 +118,7 @@ router.post("/", async (req, res) => {
     const slug = await ensureUniqueSlug(baseSlug);
 
     const { rows } = await pool.query(
-      `
-      INSERT INTO case_studies (
-        title,
-        slug,
-        content,
-        cover_image_url,
-        published
-      )
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *
-      `,
+      "INSERT INTO case_studies (title, slug, content, cover_image_url, published) VALUES ($1, $2, $3, $4, $5) RETURNING *",
       [
         title.trim(),
         slug,
@@ -192,17 +182,7 @@ router.put("/:id", async (req, res) => {
         : current.published;
 
     const { rows } = await pool.query(
-      `
-      UPDATE case_studies
-      SET
-        title = $1,
-        slug = $2,
-        content = $3,
-        cover_image_url = $4,
-        published = $5
-      WHERE id = $6
-      RETURNING *
-      `,
+      "UPDATE case_studies SET title = $1, slug = $2, content = $3, cover_image_url = $4, published = $5 WHERE id = $6 RETURNING *",
       [title, slug, content, cover_image_url, published, id]
     );
 
