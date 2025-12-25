@@ -4,6 +4,7 @@ import { motion, type Variants } from 'framer-motion';
 import HeroSlider from '../components/HeroSlider';
 import Testimonials from '../components/Testimonials';
 import { useNavigate } from 'react-router-dom';
+import { TextColor } from '../components/ui/text-color';
 import { 
   ArrowUpRight, 
   Lightbulb, 
@@ -44,7 +45,7 @@ const Home: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
-                About DTALES Tech
+                <TextColor text="About DTALES Tech" />
               </motion.h2>
               <motion.p
                 className="text-lg md:text-xl text-gray-600 leading-relaxed"
@@ -65,7 +66,7 @@ const Home: React.FC = () => {
          <div className="max-w-7xl mx-auto">
           <div className="mb-16 max-w-3xl mx-auto text-center">
            <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-black mb-6">
-             What We Offer
+             <TextColor text="What We Offer" />
            </h2>
            <p className="text-xl text-gray-500">
              Driving Market Impact with Information

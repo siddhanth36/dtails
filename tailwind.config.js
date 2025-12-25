@@ -8,6 +8,20 @@ export default {
     "./components/**/*.{js,ts,jsx,tsx}",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  safelist: [
+    "animate-gradient-foreground-1",
+    "animate-gradient-foreground-2",
+    "animate-gradient-foreground-3",
+    "before:animate-gradient-background-1",
+    "before:animate-gradient-background-2",
+    "before:animate-gradient-background-3",
+    "from-gradient-1-start",
+    "to-gradient-1-end",
+    "from-gradient-2-start",
+    "to-gradient-2-end",
+    "from-gradient-3-start",
+    "to-gradient-3-end",
+  ],
   theme: {
     extend: {
       fontFamily: {
