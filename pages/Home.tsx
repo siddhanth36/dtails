@@ -3,6 +3,7 @@ import React from 'react';
 import { motion, type Variants } from 'framer-motion';
 import HeroSlider from '../components/HeroSlider';
 import Testimonials from '../components/Testimonials';
+import { useNavigate } from 'react-router-dom';
 import { 
   ArrowUpRight, 
   Lightbulb, 
@@ -19,6 +20,8 @@ const Home: React.FC = () => {
   const iconVariants: Variants = {
     hover: { scale: 1.1, rotate: 5, transition: { type: "spring", stiffness: 400, damping: 10 } }
   };
+
+  const navigate = useNavigate();
 
   return (
     <main className="bg-[#F5F5F7]"> {/* Apple-like light gray background */}
@@ -59,88 +62,116 @@ const Home: React.FC = () => {
 
       {/* What We Offer Section (1 Row Layout) */}
       <section className="py-12 px-6" id="services">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-16 max-w-3xl">
-             <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-black mb-6">
-                What We Offer
-             </h2>
-             <p className="text-xl text-gray-500">
-                Comprehensive solutions for your documentation ecosystem.
-             </p>
-          </div>
+         <div className="max-w-7xl mx-auto">
+          <div className="mb-16 max-w-3xl mx-auto text-center">
+           <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-black mb-6">
+             What We Offer
+           </h2>
+           <p className="text-xl text-gray-500">
+             Driving Market Impact with Information
+           </p>
+         </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-             {/* Card - Consultation */}
-             <motion.div
-                className="bg-white rounded-[2.5rem] p-10 shadow-sm hover:shadow-xl transition-shadow duration-300 group flex flex-col justify-between min-h-[400px]"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-             >
-                <div>
-                    <div className="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center mb-8">
-                        <Lightbulb size={28} />
-                    </div>
-                    <h3 className="text-3xl font-bold mb-4">Consultation</h3>
-                    <p className="text-lg text-gray-500 leading-relaxed">
-                       We work with product teams to learn the product, understand the customer, and analyze existing systems to strategize and ideate ideal knowledge systems.
-                    </p>
+         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+           {/* Card - Consultation */}
+           <motion.div
+             className="bg-white rounded-[2.5rem] p-10 shadow-sm hover:shadow-xl transition-shadow duration-300 group flex flex-col justify-between min-h-[400px]"
+             initial={{ opacity: 0, y: 20 }}
+             whileInView={{ opacity: 1, y: 0 }}
+             viewport={{ once: true }}
+             onClick={() => navigate('/services')}
+           >
+             <div>
+                <div className="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center mb-8">
+                  <Lightbulb size={28} />
                 </div>
-                <div className="flex justify-end mt-8">
-                    <span className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-colors">
-                        <ArrowUpRight />
-                    </span>
-                </div>
-             </motion.div>
+                <h3 className="text-3xl font-bold mb-4">Strategy</h3>
+                <p className="text-lg text-gray-500 leading-relaxed">
+                  Define the architecture, process, and governance model for all technical communications, ensuring every piece of content is aligned to business goals.
+                </p>
+             </div>
+             <div className="flex justify-end mt-8">
+                <span className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-colors" onClick={() => navigate('/services')}>
+                  <ArrowUpRight />
+                </span>
+             </div>
+           </motion.div>
 
-             {/* Card - Technology */}
-             <motion.div
-                className="bg-white rounded-[2.5rem] p-10 shadow-sm hover:shadow-xl transition-shadow duration-300 group flex flex-col justify-between min-h-[400px]"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-             >
-                 <div>
-                    <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-8">
-                        <Database size={28} />
-                    </div>
-                    <h3 className="text-3xl font-bold mb-4">Technology</h3>
-                    <p className="text-lg text-gray-500 leading-relaxed">
-                       We recommend, develop, and maintain tools and toolchain management systems to create, and publish technical content.
-                    </p>
-                 </div>
-                 <div className="flex justify-end mt-8">
-                    <span className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                        <ArrowUpRight />
-                    </span>
+           {/* Card - Technology */}
+           <motion.div
+             className="bg-white rounded-[2.5rem] p-10 shadow-sm hover:shadow-xl transition-shadow duration-300 group flex flex-col justify-between min-h-[400px]"
+             initial={{ opacity: 0, y: 20 }}
+             whileInView={{ opacity: 1, y: 0 }}
+             viewport={{ once: true }}
+             transition={{ delay: 0.1 }}
+             onClick={() => navigate('/services')}
+           >
+              <div>
+                <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-8">
+                  <Database size={28} />
                 </div>
-             </motion.div>
+                <h3 className="text-3xl font-bold mb-4">Content</h3>
+                <p className="text-lg text-gray-500 leading-relaxed">
+                  We transform complex product information into crystal-clear, user-centric knowledge bases, APIs, and manuals that maximize product adoption and reduce support tickets.
+                </p>
+              </div>
+              <div className="flex justify-end mt-8">
+                <span className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors" onClick={() => navigate('/services')}>
+                  <ArrowUpRight />
+                </span>
+             </div>
+           </motion.div>
 
-             {/* Card - Content */}
-             <motion.div
-                className="bg-white rounded-[2.5rem] p-10 shadow-sm hover:shadow-xl transition-shadow duration-300 group flex flex-col justify-between min-h-[400px]"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-             >
-                 <div>
-                    <div className="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mb-8">
-                        <FileText size={28} />
-                    </div>
-                    <h3 className="text-3xl font-bold mb-4">Content</h3>
-                    <p className="text-lg text-gray-500 leading-relaxed">
-                       We create highly diverse range of technically accurate content catering to the product and customer requirement.
-                    </p>
-                 </div>
-                 <div className="flex justify-end mt-8">
-                    <span className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                        <ArrowUpRight />
-                    </span>
+           {/* Card - Content */}
+           <motion.div
+             className="bg-white rounded-[2.5rem] p-10 shadow-sm hover:shadow-xl transition-shadow duration-300 group flex flex-col justify-between min-h-[400px]"
+             initial={{ opacity: 0, y: 20 }}
+             whileInView={{ opacity: 1, y: 0 }}
+             viewport={{ once: true }}
+             transition={{ delay: 0.2 }}
+             onClick={() => navigate('/services')}
+           >
+              <div>
+                <div className="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mb-8">
+                  <FileText size={28} />
                 </div>
-             </motion.div>
-          </div>
+                <h3 className="text-3xl font-bold mb-4">Creatives</h3>
+                <p className="text-lg text-gray-500 leading-relaxed">
+                  Design impactful infographics, explainer videos, and visual storytelling elements that simplify complex technical concepts and capture the attention of technical decision-makers.
+                </p>
+              </div>
+              <div className="flex justify-end mt-8">
+                <span className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-colors" onClick={() => navigate('/services')}>
+                  <ArrowUpRight />
+                </span>
+             </div>
+           </motion.div>
+
+           {/* Card - Technology (new 4th card) */}
+           <motion.div
+             className="bg-white rounded-[2.5rem] p-10 shadow-sm hover:shadow-xl transition-shadow duration-300 group flex flex-col justify-between min-h-[400px]"
+             initial={{ opacity: 0, y: 20 }}
+             whileInView={{ opacity: 1, y: 0 }}
+             viewport={{ once: true }}
+             transition={{ delay: 0.3 }}
+             onClick={() => navigate('/services')}
+           >
+              <div>
+                <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-8">
+                  <Database size={28} />
+                </div>
+                <h3 className="text-3xl font-bold mb-4">Technology</h3>
+                <p className="text-lg text-gray-500 leading-relaxed">
+                  Implement, integrate, and manage next-generation Component Content Management Systems (CCMS) and AI-enabled documentation tools for maximum operational efficiency and future-proofing.
+                </p>
+              </div>
+              <div className="flex justify-end mt-8">
+                <span className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors" onClick={() => navigate('/services')}>
+                  <ArrowUpRight />
+                </span>
+              </div>
+           </motion.div>
+         </div>
         </div>
       </section>
 
@@ -267,7 +298,7 @@ const Home: React.FC = () => {
           >
               <h2 className="text-5xl md:text-7xl font-bold mb-8 tracking-tight">Ready to tell your story?</h2>
               <p className="text-xl text-gray-500 mb-10 max-w-xl mx-auto">
-                Join the forward-thinking companies building with DTales.
+                Join the forward-thinking companies building with DTALES.
               </p>
               <button className="bg-dtales-navy text-white px-12 py-5 rounded-full text-xl font-semibold hover:bg-black transition-all hover:scale-105 shadow-xl">
                 Start a Project

@@ -70,7 +70,7 @@ const AdminDashboard: React.FC = () => {
               <Shield className="text-[#0020BF]" size={24} />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white">DTales Admin Dashboard</h1>
+              <h1 className="text-3xl font-bold text-white">DTALES Admin Dashboard</h1>
               <p className="text-gray-400 text-sm">Welcome, Admin</p>
             </div>
           </div>

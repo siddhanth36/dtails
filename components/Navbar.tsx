@@ -38,7 +38,7 @@ const Navbar: React.FC = () => {
           >
             <motion.img
               src="/dtales-logo.png"
-              alt="DTales Tech Logo"
+              alt="DTALES Tech Logo"
               className="h-12 w-auto"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}

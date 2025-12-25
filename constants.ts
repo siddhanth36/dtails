@@ -6,7 +6,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     name: "Bindu Mohan",
     role: "CEO & Founder",
     image: "https://picsum.photos/id/338/800/1000", // Professional portrait placeholder
-    bio: "Visionary leader driving DTales to new heights with a focus on digital transformation and storytelling excellence."
+    bio: "Visionary leader driving DTALES to new heights with a focus on digital transformation and storytelling excellence."
   },
   {
     name: "Sneha Peri",
@@ -27,7 +27,7 @@ export const TESTIMONIALS: Testimonial[] = [
     id: 1,
     client: "Sarah Johnson",
     company: "TechFlow Inc.",
-    quote: "DTales completely transformed our digital presence. Their storytelling approach is unmatched in the industry."
+    quote: "DTALES completely transformed our digital presence. Their storytelling approach is unmatched in the industry."
   },
   {
     id: 2,

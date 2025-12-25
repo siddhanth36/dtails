@@ -47,7 +47,7 @@ const Blogs: React.FC = () => {
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 				>
-					Latest published insights from DTales Tech.
+					Latest published insights from DTALES Tech.
 				</motion.p>
 			</div>
 

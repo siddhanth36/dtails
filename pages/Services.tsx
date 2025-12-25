@@ -188,7 +188,7 @@ const Services: React.FC = () => {
         <div className="max-w-3xl mx-auto px-6">
             <h2 className="text-4xl md:text-5xl font-bold mb-8">Enhance your documentation today.</h2>
             <p className="text-xl text-blue-200 mb-10">
-                Whether you need expert services or professional training, DTales is your partner in excellence.
+                Whether you need expert services or professional training, DTALES is your partner in excellence.
             </p>
             <button className="bg-white text-dtales-navy px-10 py-4 rounded-full text-lg font-bold hover:scale-105 transition-all shadow-lg hover:shadow-white/20">
                 Get in Touch

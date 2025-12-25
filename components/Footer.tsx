@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
             <Link to="/" className="inline-block mb-6">
               <img 
                 src="/dtales-logo.png" 
-                alt="DTales Tech Logo" 
+                alt="DTALES Tech Logo" 
                 className="h-14 w-auto"
               />
             </Link>
@@ -65,7 +65,7 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="border-t border-white/10 pt-8 text-gray-500 text-sm flex justify-between">
-          <p>© {new Date().getFullYear()} DTales Tech. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} DTALES Tech. All rights reserved.</p>
         </div>
 
       </div>

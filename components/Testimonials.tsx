@@ -19,7 +19,7 @@ const Testimonials: React.FC = () => {
     
     // Temporary fallback
     const fallbackData: Testimonial[] = [
-      { id: 1, quote: "DTales transformed our documentation from chaotic to crystal clear.", client: "Sarah M.", company: "TechCorp" },
+      { id: 1, quote: "DTALES transformed our documentation from chaotic to crystal clear.", client: "Sarah M.", company: "TechCorp" },
       { id: 2, quote: "Their content strategy increased our user engagement by 300%.", client: "James K.", company: "StartupHub" },
       { id: 3, quote: "Professional, detail-oriented, and always ahead of deadlines.", client: "Emily R.", company: "CloudVentures" },
     ];
