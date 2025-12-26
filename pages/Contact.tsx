@@ -75,7 +75,7 @@ const Contact: React.FC = () => {
             Let's work together
           </h1>
           <p className="text-gray-400 text-lg">
-            Interested in working together? Please fill out the form below to book a free consultation.
+            Interested in working together? Please fill out the form below to book a free consultation
           </p>
         </motion.div>
 

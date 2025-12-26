@@ -52,29 +52,29 @@ export const TESTIMONIALS: Testimonial[] = [
 export const HERO_SLIDES: SlideData[] = [
   {
     id: 1,
-    title: "From Concept to Clarity.",
-    subtitle: "Expert Documentation That Powers Your Product Experience.",
+    title: "From Concept to Clarity",
+    subtitle: "Expert Documentation That Powers Your Product Experience",
     image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1920&auto=format&fit=crop", // Strategy/Planning/Clarity image
     cta: "Learn More"
   },
   {
     id: 2,
-    title: "Code Into Conversation.",
-    subtitle: "Technical Writing for Modern Products.",
+    title: "Code Into Conversation",
+    subtitle: "Technical Writing for Modern Products",
     image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=1920&auto=format&fit=crop",
     cta: "Our Services"
   },
   {
     id: 3,
-    title: "Unlocking Potential.",
-    subtitle: "With Precision Content & Knowledge Systems.",
+    title: "Unlocking Potential",
+    subtitle: "With Precision Content & Knowledge Systems",
     image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1920&auto=format&fit=crop",
     cta: "View Portfolio"
   },
   {
     id: 4,
-    title: "Your Single Partner.",
-    subtitle: "For Documentation Strategy, Toolchain & Content Excellence.",
+    title: "Your Single Partner",
+    subtitle: "For Documentation Strategy, Toolchain & Content Excellence",
     image: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=1920&auto=format&fit=crop",
     cta: "Contact Us"
   }

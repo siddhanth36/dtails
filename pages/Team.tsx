@@ -23,8 +23,8 @@ const Team: React.FC = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
             >
-            We are a collective of dreamers and doers. <br className="hidden md:block" />
-            Meet the people leading the charge at DTALES.
+            We are a collective of dreamers and doers <br className="hidden md:block" />
+            Meet the people leading the charge at DTALES
             </motion.p>
         </div>
       </section>

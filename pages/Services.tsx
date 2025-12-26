@@ -53,7 +53,7 @@ const Services: React.FC = () => {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
             >
-                From comprehensive documentation strategies to future-ready training, we empower your product ecosystem.
+                From comprehensive documentation strategies to future-ready training, we empower your product ecosystem
             </motion.p>
         </div>
       </section>
